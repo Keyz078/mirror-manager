@@ -66,9 +66,20 @@ def add_entry():
     if not entry:
         flash("Entry tidak boleh kosong.", "error")
     else:
-        with open(mirror_list_file, "a") as file:
-            file.write(entry + "\n")
-        flash("Entry berhasil ditambahkan!", "success")
+        # Baca file dan cek apakah entry sudah ada
+        with open(mirror_list_file, "r") as file:
+            existing_entries = file.readlines()
+
+        # Hilangkan whitespace (strip) pada setiap baris untuk perbandingan
+        existing_entries = [line.strip() for line in existing_entries]
+
+        if entry in existing_entries:
+            flash("Repo sudah ada pada list.", "error")
+        else:
+            with open(mirror_list_file, "a") as file:
+                file.write(entry + "\n")
+            flash("Entry berhasil ditambahkan!", "success")
+    
     return redirect(url_for("index"))
 
 @app.route("/delete_entry", methods=["POST"])
