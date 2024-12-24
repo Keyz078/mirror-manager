@@ -1,0 +1,45 @@
+Starting apt-mirror and logging to /var/spool/apt-mirror/var/LOG...
+Downloading 28 index files using 20 threads...
+Begin time: Tue Dec 24 12:54:53 2024
+[20]... [19]... [18]... [17]... [16]... [15]... [14]... [13]... [12]... [11]... [10]... [9]... [8]... [7]... [6]... [5]... [4]... [3]... [2]... [1]... [0]... 
+End time: Tue Dec 24 12:54:55 2024
+
+Processing translation indexes: [TT]
+
+Downloading 0 translation files using 0 threads...
+Begin time: Tue Dec 24 12:54:55 2024
+[0]... 
+End time: Tue Dec 24 12:54:55 2024
+
+Processing DEP-11 indexes: [DD]
+
+Downloading 0 dep11 files using 0 threads...
+Begin time: Tue Dec 24 12:54:55 2024
+[0]... 
+End time: Tue Dec 24 12:54:55 2024
+
+Processing cnf indexes: [CC]
+
+Downloading 0 cnf files using 0 threads...
+Begin time: Tue Dec 24 12:54:55 2024
+[0]... 
+End time: Tue Dec 24 12:54:55 2024
+
+Processing indexes: [PP]
+
+0 bytes will be downloaded into archive.
+Downloading 0 archive files using 0 threads...
+Begin time: Tue Dec 24 12:54:55 2024
+[0]... 
+End time: Tue Dec 24 12:54:55 2024
+
+0 bytes in 0 files and 0 directories can be freed.
+Run /var/spool/apt-mirror/var/clean.sh for this purpose.
+
+Running the Post Mirror script ...
+(/var/spool/apt-mirror/var/postmirror.sh)
+
+/bin/sh: 0: Can't open /var/spool/apt-mirror/var/postmirror.sh
+
+Post Mirror script has completed. See above output for any possible errors.
+

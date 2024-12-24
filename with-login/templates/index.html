@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apt-Mirror Manager</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-6">
+        <h1 class="text-4xl font-bold text-center mb-8">Mirror Manager</h1>
+        <div class="mb-6">
+            <p class="text-sm">Selamat datang, {{ current_user.id }}!</p>
+            <form action="/logout" method="POST">
+                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg">Logout</button>
+            </form>
+        </div>
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-6 mb-6">
+            <strong class="font-semibold">Notes:</strong> Mirror manager ini baru support debian base
+        </div>
+        <!-- Form mirror path -->
+        <form action="/set_path" method="POST" class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <label for="mirror_data_path" class="block text-sm font-medium text-gray-700 mb-2">Path Mirror Data:</label>
+            <input type="text" id="mirror_data_path" name="mirror_data_path" value="{{ mirror_data_path }}" placeholder="/path/to/mirror/data" required class="w-full p-2 border border-gray-300 rounded-lg mb-4">
+            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-lg">Simpan Path</button>
+        </form>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul class="mb-6">
+            {% for category, message in messages %}
+            <li class="text-sm text-red-500">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Form add repo -->
+        <form action="/add_entry" method="POST" class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <label for="entry" class="block text-sm font-medium text-gray-700 mb-2">Tambah Repository:</label>
+            <input type="text" id="entry" name="entry" placeholder="Contoh: deb http://archive.ubuntu.com/ubuntu focal main" required class="w-full p-2 border border-gray-300 rounded-lg mb-4">
+            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-lg">Tambah</button>
+        </form>
+
+        <!-- Daftar repository -->
+        {% if entries %}
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <table class="w-full text-left table-auto">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2 text-sm font-semibold text-gray-700">Repository</th>
+                        <th class="px-4 py-2 text-sm font-semibold text-gray-700">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in entries %}
+                    <tr>
+                        <td class="px-4 py-2 text-sm text-gray-700">{{ entry }}</td>
+                        <td class="px-4 py-2 text-sm">
+                            <!-- Form untuk setiap tombol Hapus -->
+                            <form action="/delete_entry" method="POST" class="inline-block">
+                                <button type="submit" name="entry_to_delete" value="{{ entry }}" class="bg-red-500 text-white px-4 py-2 rounded-lg">Hapus</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-gray-700 mb-6">Tidak ada repository dalam file mirror.list.</p>
+        {% endif %}
+
+        <!-- Button -->
+        <div class="flex space-x-4 mb-6">
+            <button type="submit" class="w-full bg-green-500 text-white p-2 rounded-lg" id="startMirrorBtn">Jalankan Proses Mirroring</button>
+            <button type="submit" class="w-full bg-red-500 text-white p-2 rounded-lg" id="stopContainerBtn">Stop Container</button>
+            <button class="w-full bg-yellow-500 text-white p-2 rounded-lg" id="checkStatusBtn">Cek Status Proses</button>
+            <form action="/container_logs" method="GET" class="w-full">
+                <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-lg">Lihat Log Terakhir</button>
+            </form>
+            <a href="{{ url_for('stream_logs') }}" target="_blank" class="w-full bg-indigo-500 text-white p-2 rounded-lg text-center">
+                Stream Log
+            </a>
+            <form action="/clear_path" method="POST" class="w-full">
+                <button type="submit" class="w-full bg-gray-500 text-white p-2 rounded-lg">Clear Path</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('checkStatusBtn').addEventListener('click', async function () {
+            const response = await fetch('/check_status');
+            const result = await response.json();
+            alert(result.message);
+        });
+        document.getElementById('startMirrorBtn').addEventListener('click', async function () {
+            if (confirm("Apakah anda yakin??") == true) {
+            //   text = "You pressed OK!";
+                alert("Menjalankan mirror..")
+                const response = await fetch('/start_mirror');
+                const result = await response.json();
+                alert(result.message);
+            }        
+        });
+        document.getElementById('stopContainerBtn').addEventListener('click', async function () {
+            if (confirm("Apakah anda yakin?") == true){
+                alert("Menghentikan mirror..")
+                const response = await fetch('/stop_container');
+                const result = await response.json();
+                alert(result.message);
+            }
+        });
+    </script>
+</body>
+</html>

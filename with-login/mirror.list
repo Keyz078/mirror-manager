@@ -1,0 +1,2 @@
+deb http://nginx.org/packages/ubuntu xenial nginx
+deb http://nginx.org/packages/ubuntu bionic nginx
