@@ -47,6 +47,7 @@ def set_path():
     if not new_path:
         flash("Path mirror data tidak boleh kosong.", "error")
     else:
+        print(f"Set path baru ke {new_path}")
         mirror_data_path = new_path
         flash("Path mirror data berhasil diperbarui!", "success")
     return redirect(url_for("index"))
@@ -55,6 +56,7 @@ def set_path():
 @login_required
 def clear_path():
     global mirror_data_path
+    print("Reset mirror path")
     mirror_data_path = ""  # Menghapus nilai path
     flash("Path mirror data telah dihapus.", "info")
     return redirect(url_for("index"))
@@ -77,6 +79,7 @@ def add_entry():
             flash("Repo sudah ada pada list.", "error")
         else:
             with open(mirror_list_file, "a") as file:
+                print(f"Menambahkan {entry} ke dalam list")
                 file.write(entry + "\n")
             flash("Entry berhasil ditambahkan!", "success")
     
@@ -89,6 +92,7 @@ def delete_entry():
     if not entry_to_delete:
         flash("Entry yang dipilih tidak valid.", "error")
     else:
+        print(f"Menghapus {entry_to_delete} dari list")
         if os.path.exists(mirror_list_file):
             with open(mirror_list_file, "r") as file:
                 lines = file.readlines()
@@ -110,7 +114,7 @@ def start_mirror():
     if not os.path.exists(mirror_list_file):
         # return "File mirror.list belum ada. Tambahkan repository terlebih dahulu.", 400
         return {"status": "warning", "message": "mirror.list belum ada"}
-
+    print("Menjalankan container mirror")
     try:
         client = docker.from_env()
         container = client.containers.run(
@@ -140,6 +144,7 @@ def start_mirror():
 @login_required
 def stop_container():
     global container
+    print("Stop container mirror")
     try:
         stop = container.stop()
         if stop:        
@@ -178,6 +183,7 @@ def stream_logs():
 @login_required
 def check_status():
     global container
+    print("Reload status container")
     try:
         container.reload()
         if container.status == "running":
