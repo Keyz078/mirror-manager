@@ -116,6 +116,7 @@ def start_mirror():
         return {"status": "warning", "message": "mirror.list belum ada"}
     print("Menjalankan container mirror")
     try:
+        # client = docker.DockerClient(base_url='unix:////run/podman/podman.sock') # for podman
         client = docker.from_env()
         container = client.containers.run(
             name="mirror",
