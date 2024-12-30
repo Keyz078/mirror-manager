@@ -7,7 +7,6 @@
     <!-- Tailwind CSS CDN -->
     <!-- <script src="https://cdn.tailwindcss.com"></script> -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.min.css') }}">
-
 </head>
 <body class="bg-gray-100 font-sans">
     <div class="container mx-auto p-6">
@@ -21,23 +20,43 @@
         <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-6 mb-6">
             <strong class="font-semibold">Notes:</strong> Mirror manager ini baru support debian base
         </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        {% if category == 'success' %}
+        <div id="alert-border-1" class="flex items-center p-4 mb-4 text-green-800 border-t-4 border-green-300 bg-green-50" role="alert">
+            <div class="ms-3 text-sm font-medium">
+               {{ message }}
+            </div>
+            <button id="close-alert" type="button" class="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8" aria-label="Close">
+                <span class="sr-only">Dismiss</span>
+                <svg class="w-3 h-3" aria-hidden="true" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+            </button>
+        </div>
+        {% else %}
+        <div id="alert-border-1" class="flex items-center p-4 mb-4 text-red-800 border-t-4 border-red-300 bg-red-50" role="alert">
+            <div class="ms-3 text-sm font-medium">
+               {{ message }}
+            </div>
+            <button id="close-alert" type="button" class="ms-auto -mx-1.5 -my-1.5 bg-red-50 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-200 inline-flex items-center justify-center h-8 w-8" aria-label="Close">
+                <span class="sr-only">Dismiss</span>
+                <svg class="w-3 h-3" aria-hidden="true" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+            </button>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
         <!-- Form mirror path -->
         <form action="/set_path" method="POST" class="bg-white p-6 rounded-lg shadow-md mb-6">
             <label for="mirror_data_path" class="block text-sm font-medium text-gray-700 mb-2">Path Mirror Data:</label>
             <input type="text" id="mirror_data_path" name="mirror_data_path" value="{{ mirror_data_path }}" placeholder="/path/to/mirror/data" required class="w-full p-2 border border-gray-300 rounded-lg mb-4">
             <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-lg">Simpan Path</button>
         </form>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <ul class="mb-6">
-            {% for category, message in messages %}
-            <li class="text-sm text-red-500">{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-
         <!-- Form add repo -->
         <form action="/add_entry" method="POST" class="bg-white p-6 rounded-lg shadow-md mb-6">
             <label for="entry" class="block text-sm font-medium text-gray-700 mb-2">Tambah Repository:</label>
@@ -79,15 +98,12 @@
             <button type="submit" class="w-full bg-green-500 text-white p-2 rounded-lg" id="startMirrorBtn">Jalankan Proses Mirroring</button>
             <button type="submit" class="w-full bg-red-500 text-white p-2 rounded-lg" id="stopContainerBtn">Stop Container</button>
             <button class="w-full bg-yellow-500 text-white p-2 rounded-lg" id="checkStatusBtn">Cek Status Proses</button>
-            <form action="/container_logs" method="GET" class="w-full">
-                <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-lg">Lihat Log Terakhir</button>
-            </form>
+            <a href="{{ url_for('container_logs') }}" class="w-full bg-blue-500 text-white p-2 rounded-lg">
+                Lihat Log Terakhir
+            </a>
             <a href="{{ url_for('stream_logs') }}" target="_blank" class="w-full bg-indigo-500 text-white p-2 rounded-lg text-center">
                 Stream Log
             </a>
-            <form action="/clear_path" method="POST" class="w-full">
-                <button type="submit" class="w-full bg-gray-500 text-white p-2 rounded-lg">Clear Path</button>
-            </form>
         </div>
     </div>
 
@@ -114,6 +130,13 @@
                 alert(result.message);
             }
         });
+       const closeButton = document.getElementById('close-alert');
+       const alertBox = document.getElementById('alert-border-1');
+
+       // Event listener untuk menutup alert saat tombol close diklik
+       closeButton.addEventListener('click', () => {
+           alertBox.style.display = 'none';
+       });
     </script>
 </body>
 </html>
