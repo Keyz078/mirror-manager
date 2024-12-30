@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, Response
+rom flask import Flask, render_template, request, redirect, url_for, flash, session, Response
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import os
 import docker
@@ -50,15 +50,6 @@ def set_path():
         print(f"Set path baru ke {new_path}")
         mirror_data_path = new_path
         flash("Path mirror data berhasil diperbarui!", "success")
-    return redirect(url_for("index"))
-
-@app.route("/clear_path", methods=["POST"])
-@login_required
-def clear_path():
-    global mirror_data_path
-    print("Reset mirror path")
-    mirror_data_path = ""  # Menghapus nilai path
-    flash("Path mirror data telah dihapus.", "info")
     return redirect(url_for("index"))
 
 @app.route("/add_entry", methods=["POST"])
@@ -116,8 +107,8 @@ def start_mirror():
         return {"status": "warning", "message": "mirror.list belum ada"}
     print("Menjalankan container mirror")
     try:
-        # client = docker.DockerClient(base_url='unix:////run/podman/podman.sock') # for podman
-        client = docker.from_env()
+        #client = docker.from_env()
+        client = docker.DockerClient(base_url='unix:////run/podman/podman.sock') # for podman
         container = client.containers.run(
             name="mirror",
             image="keyz078/apt-mirror:latest",
@@ -137,6 +128,7 @@ def start_mirror():
 
         return {"status": "Complete", "message": "Proses mirroring berhasil dijalankan!"}
     except Exception as e:
+        print(e)
         return {"status": "running", "message": "Proses masih berjalan."}
         # return f"Terjadi kesalahan: {str(e)}", 500
 
