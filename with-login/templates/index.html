@@ -11,8 +11,8 @@
 <body class="bg-gray-100 font-sans">
     <div class="container mx-auto p-6">
         <h1 class="text-4xl font-bold text-center mb-8">Mirror Manager</h1>
-        <div class="mb-6">
-            <p class="text-sm">Selamat datang, {{ current_user.id }}!</p>
+        <div class="mb-6 text-right">
+            <!-- <p class="text-sm text-center">Selamat datang, {{ current_user.id }}!</p> -->
             <form action="/logout" method="POST">
                 <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg">Logout</button>
             </form>
@@ -57,37 +57,16 @@
             <input type="text" id="mirror_data_path" name="mirror_data_path" value="{{ mirror_data_path }}" placeholder="/path/to/mirror/data" required class="w-full p-2 border border-gray-300 rounded-lg mb-4">
             <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-lg">Simpan Path</button>
         </form>
-        <!-- Form add repo -->
-        <form action="/add_entry" method="POST" class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <label for="entry" class="block text-sm font-medium text-gray-700 mb-2">Tambah Repository:</label>
-            <input type="text" id="entry" name="entry" placeholder="Contoh: deb http://archive.ubuntu.com/ubuntu focal main" required class="w-full p-2 border border-gray-300 rounded-lg mb-4">
-            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-lg">Tambah</button>
-        </form>
 
-        <!-- Daftar repository -->
         {% if entries %}
         <div class="bg-white p-6 rounded-lg shadow-md mb-6">
-            <table class="w-full text-left table-auto">
-                <thead>
-                    <tr>
-                        <th class="px-4 py-2 text-sm font-semibold text-gray-700">Repository</th>
-                        <th class="px-4 py-2 text-sm font-semibold text-gray-700">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for entry in entries %}
-                    <tr>
-                        <td class="px-4 py-2 text-sm text-gray-700">{{ entry }}</td>
-                        <td class="px-4 py-2 text-sm">
-                            <!-- Form untuk setiap tombol Hapus -->
-                            <form action="/delete_entry" method="POST" class="inline-block">
-                                <button type="submit" name="entry_to_delete" value="{{ entry }}" class="bg-red-500 text-white px-4 py-2 rounded-lg">Hapus</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <!-- <textarea class="resize-none md:resize">{{ entries }}</textarea> -->
+            <label for="entry" class="block mb-2 text-sm font-medium text-gray-900">List repo:</label>
+            <form action="/update" method="POST">
+            <textarea id="entry" name="entry" rows="15" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="repo list...">{{ entries | join('\n') }}</textarea>
+            <br/>
+            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-lg">Update</button>
+            </form>
         </div>
         {% else %}
         <p class="text-yellow-700 mb-6">Warning: Tidak ada repository dalam file mirror.list.</p>
@@ -98,7 +77,7 @@
             <button type="submit" class="w-full bg-green-500 text-white p-2 rounded-lg" id="startMirrorBtn">Jalankan Proses Mirroring</button>
             <button type="submit" class="w-full bg-red-500 text-white p-2 rounded-lg" id="stopContainerBtn">Stop Container</button>
             <button class="w-full bg-yellow-500 text-white p-2 rounded-lg" id="checkStatusBtn">Cek Status Proses</button>
-            <a href="{{ url_for('container_logs') }}" class="w-full bg-blue-500 text-white p-2 rounded-lg">
+            <a href="{{ url_for('container_logs') }}" class="w-full bg-blue-500 text-white p-2 rounded-lg text-center">
                 Lihat Log Terakhir
             </a>
             <a href="{{ url_for('stream_logs') }}" target="_blank" class="w-full bg-indigo-500 text-white p-2 rounded-lg text-center">
