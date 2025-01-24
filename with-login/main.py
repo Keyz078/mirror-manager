@@ -52,48 +52,18 @@ def set_path():
         flash("Path mirror data berhasil diperbarui!", "success")
     return redirect(url_for("index"))
 
-@app.route("/add_entry", methods=["POST"])
 @login_required
-def add_entry():
-    entry = request.form.get("entry", "").strip()
-    if not entry:
-        flash("Entry tidak boleh kosong.", "error")
-    else:
-        # Baca file dan cek apakah entry sudah ada
-        with open(mirror_list_file, "r") as file:
-            existing_entries = file.readlines()
+@app.route("/update", methods=["POST"])
+def update():
+    # Mendapatkan konten dari textarea
+    new_repo = request.form["entry"]
+    # print(new_repo)
+    # Menyimpan list repo baru ke file
+    with open(mirror_list_file, "w") as file:
+        file.write(new_repo.strip() + "\n")
 
-        # Hilangkan whitespace (strip) pada setiap baris untuk perbandingan
-        existing_entries = [line.strip() for line in existing_entries]
-
-        if entry in existing_entries:
-            flash("Repo sudah ada pada list.", "error")
-        else:
-            with open(mirror_list_file, "a") as file:
-                print(f"Menambahkan {entry} ke dalam list")
-                file.write(entry + "\n")
-            flash("Entry berhasil ditambahkan!", "success")
-    
+    flash("list mirror repo berhasil diperbarui!", "success")
     return redirect(url_for("index"))
-
-@app.route("/delete_entry", methods=["POST"])
-@login_required
-def delete_entry():
-    entry_to_delete = request.form.get("entry_to_delete", "").strip()
-    if not entry_to_delete:
-        flash("Entry yang dipilih tidak valid.", "error")
-    else:
-        print(f"Menghapus {entry_to_delete} dari list")
-        if os.path.exists(mirror_list_file):
-            with open(mirror_list_file, "r") as file:
-                lines = file.readlines()
-            with open(mirror_list_file, "w") as file:
-                for line in lines:
-                    if line.strip() != entry_to_delete:
-                        file.write(line)
-            flash("Entry berhasil dihapus!", "success")
-    return redirect(url_for("index"))
-
 
 @app.route("/start_mirror")
 @login_required
@@ -107,8 +77,8 @@ def start_mirror():
         return {"status": "warning", "message": "mirror.list belum ada"}
     print("Menjalankan container mirror")
     try:
-        #client = docker.from_env()
-        client = docker.DockerClient(base_url='unix:////run/podman/podman.sock') # for podman
+        client = docker.from_env()
+        #client = docker.DockerClient(base_url='unix:////run/podman/podman.sock') # for podman
         container = client.containers.run(
             name="mirror",
             image="keyz078/apt-mirror:latest",
