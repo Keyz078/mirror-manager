@@ -58,7 +58,6 @@
             <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-lg">Simpan Path</button>
         </form>
 
-        {% if entries %}
         <div class="bg-white p-6 rounded-lg shadow-md mb-6">
             <!-- <textarea class="resize-none md:resize">{{ entries }}</textarea> -->
             <label for="entry" class="block mb-2 text-sm font-medium text-gray-900">List repo:</label>
@@ -68,7 +67,7 @@
             <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-lg">Update</button>
             </form>
         </div>
-        {% else %}
+        {% if not entries %}
         <p class="text-yellow-700 mb-6">Warning: Tidak ada repository dalam file mirror.list.</p>
         {% endif %}
 

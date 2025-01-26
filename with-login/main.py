@@ -16,6 +16,10 @@ mirror_data_path = ""
 mirror_list_file = "mirror.list"
 log_file = "mirror.log"
 
+# Connect to socket
+client = docker.from_env()
+#client = docker.DockerClient(base_url='unix:////run/podman/podman.sock') # for podman
+
 # User untuk autentikasi
 class User(UserMixin):
     def __init__(self, id):
@@ -68,7 +72,7 @@ def update():
 @app.route("/start_mirror")
 @login_required
 def start_mirror():
-    global mirror_data_path, container
+    global mirror_data_path, container, client
     if not mirror_data_path:
         # return "Path mirror data belum diatur.", 400
         return {"status": "warning", "message": "Path belum diatur!"}
@@ -77,8 +81,6 @@ def start_mirror():
         return {"status": "warning", "message": "mirror.list belum ada"}
     print("Menjalankan container mirror")
     try:
-        client = docker.from_env()
-        #client = docker.DockerClient(base_url='unix:////run/podman/podman.sock') # for podman
         container = client.containers.run(
             name="mirror",
             image="keyz078/apt-mirror:latest",
