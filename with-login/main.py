@@ -93,7 +93,7 @@ def start_mirror():
             for line in container.logs(stream=True):
                 log.write(line.decode("utf-8"))
 
-        return {"status": "Complete", "message": "Proses mirroring berhasil dijalankan!"}
+        return {"status": "Complete", "message": "Proses mirroring telah selesai."}
     except Exception as e:
         print(e)
         return {"status": "running", "message": "Proses masih berjalan."}

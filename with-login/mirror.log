@@ -1,33 +1,33 @@
 Starting apt-mirror and logging to /var/spool/apt-mirror/var/LOG...
-Downloading 28 index files using 20 threads...
-Begin time: Sun Jan 26 02:28:09 2025
-[20]... [19]... [18]... [17]... [16]... [15]... [14]... [13]... [12]... [11]... [10]... [9]... [8]... [7]... [6]... [5]... [4]... [3]... [2]... [1]... [0]... 
-End time: Sun Jan 26 02:28:10 2025
+Downloading 14 index files using 14 threads...
+Begin time: Sun Jan 26 02:40:05 2025
+[14]... [13]... [12]... [11]... [10]... [9]... [8]... [7]... [6]... [5]... [4]... [3]... [2]... [1]... [0]... 
+End time: Sun Jan 26 02:40:11 2025
 
-Processing translation indexes: [TT]
+Processing translation indexes: [T]
 
 Downloading 0 translation files using 0 threads...
-Begin time: Sun Jan 26 02:28:10 2025
+Begin time: Sun Jan 26 02:40:11 2025
 [0]... 
-End time: Sun Jan 26 02:28:10 2025
+End time: Sun Jan 26 02:40:11 2025
 
-Processing DEP-11 indexes: [DD]
+Processing DEP-11 indexes: [D]
 
 Downloading 0 dep11 files using 0 threads...
-Begin time: Sun Jan 26 02:28:10 2025
+Begin time: Sun Jan 26 02:40:11 2025
 [0]... 
-End time: Sun Jan 26 02:28:10 2025
+End time: Sun Jan 26 02:40:11 2025
 
-Processing cnf indexes: [CC]
+Processing cnf indexes: [C]
 
 Downloading 0 cnf files using 0 threads...
-Begin time: Sun Jan 26 02:28:10 2025
+Begin time: Sun Jan 26 02:40:11 2025
 [0]... 
-End time: Sun Jan 26 02:28:10 2025
+End time: Sun Jan 26 02:40:11 2025
 
-Processing indexes: [PP]
+Processing indexes: [P]
 
-524.8 MiB will be downloaded into archive.
-Downloading 458 archive files using 20 threads...
-Begin time: Sun Jan 26 02:28:10 2025
-[20]... [19]... [18]... [17]... [16]... [15]... [14]... [13]... [12]... [11]... 
+249.8 MiB will be downloaded into archive.
+Downloading 67 archive files using 20 threads...
+Begin time: Sun Jan 26 02:40:11 2025
+[20]... 
