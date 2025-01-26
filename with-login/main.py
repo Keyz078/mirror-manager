@@ -58,10 +58,7 @@ def set_path():
 @login_required
 @app.route("/update", methods=["POST"])
 def update():
-    # Mendapatkan konten dari textarea
     new_repo = request.form["entry"]
-    # print(new_repo)
-    # Menyimpan list repo baru ke file
     with open(mirror_list_file, "w") as file:
         file.write(new_repo.strip() + "\n")
 
