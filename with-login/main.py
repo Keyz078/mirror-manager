@@ -4,12 +4,12 @@ import os
 import docker
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"  # Kunci untuk session dan flash messages
+app.secret_key = "supersecretkey"
 
 # Setup Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = "login"  # Halaman login jika user belum login
+login_manager.login_view = "login"
 
 # Tentukan path file dan direktori
 mirror_data_path = ""
@@ -18,7 +18,7 @@ log_file = "mirror.log"
 
 # Connect to socket
 client = docker.from_env()
-#client = docker.DockerClient(base_url='unix:////run/podman/podman.sock') # for podman
+# client = docker.DockerClient(base_url='unix:////run/podman/podman.sock') # for podman
 
 # User untuk autentikasi
 class User(UserMixin):
@@ -40,7 +40,6 @@ def index():
     if os.path.exists(mirror_list_file):
         with open(mirror_list_file, "r") as file:
             entries = [line.strip() for line in file.readlines()]
-    # print(mirror_data_path, entries)  # Untuk debugging
     return render_template("index.html", mirror_data_path=mirror_data_path, entries=entries)
 
 @app.route("/set_path", methods=["POST"])
@@ -74,12 +73,11 @@ def update():
 def start_mirror():
     global mirror_data_path, container, client
     if not mirror_data_path:
-        # return "Path mirror data belum diatur.", 400
         return {"status": "warning", "message": "Path belum diatur!"}
     if not os.path.exists(mirror_list_file):
-        # return "File mirror.list belum ada. Tambahkan repository terlebih dahulu.", 400
         return {"status": "warning", "message": "mirror.list belum ada"}
     print("Menjalankan container mirror")
+
     try:
         container = client.containers.run(
             name="mirror",
@@ -102,7 +100,6 @@ def start_mirror():
     except Exception as e:
         print(e)
         return {"status": "running", "message": "Proses masih berjalan."}
-        # return f"Terjadi kesalahan: {str(e)}", 500
 
 
 @app.route("/stop_container")
