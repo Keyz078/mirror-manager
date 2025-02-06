@@ -6,12 +6,10 @@ import docker
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-# Setup Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
-# Tentukan path file dan direktori
 mirror_data_path_ubuntu = ""
 mirror_data_path_rhel = ""
 mirror_list_file = ["mirror.list", "repo.conf"]
@@ -19,36 +17,31 @@ log_file = ["mirror.log", "reposync.log"]
 
 # Connect to socket
 client = docker.from_env()
+
 sites = {
     "ubuntu": "index",
     "rhel": "rhel"
 }
 
 def get_container():
-    """Mengambil daftar container dengan filter nama 'mirror'."""
     return client.containers.list(all=True, filters={"name": "mirror"})
 
 def read_file(file_path):
-    """Membaca file dan mengembalikan daftar baris."""
     if os.path.exists(file_path):
         with open(file_path, "r") as file:
             return [line.strip() for line in file.readlines()]
     return []
 
 def write_file(file_path, content):
-    """Menulis konten ke file."""
     with open(file_path, "w") as file:
         file.write(content.strip() + "\n")
 
-# User untuk autentikasi
 class User(UserMixin):
     def __init__(self, id):
         self.id = id
 
-# Dummy user untuk testing
 users = {"admin": "admin"}
 
-# Memuat user berdasarkan id
 @login_manager.user_loader
 def load_user(user_id):
     return User(user_id)
@@ -97,7 +90,6 @@ def update():
 @app.route("/containers")
 @login_required
 def list_containers():
-    """Mengembalikan daftar container dalam format JSON untuk AJAX."""
     containers = get_container()
     container_data = [{"id": c.id, "name": c.name, "status": c.status} for c in containers]
     return jsonify(container_data)
