@@ -1,1 +1,1 @@
-deb http://nginx.org/packages/ubuntu bionic nginx
+deb https://nginx.org/packages/ubuntu focal nginx
