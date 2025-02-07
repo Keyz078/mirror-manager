@@ -79,6 +79,8 @@
 
         <div class="bg-white p-6 rounded-lg shadow-md mb-6 dark:bg-gray-700 dark:border-gray-100 dark:text-gray-500">
             <!-- <textarea class="resize-none md:resize">{{ entries }}</textarea> -->
+            <label for="containerName" class="block mb-2 text-sm font-medium dark:text-white">Container Name:</label>
+            <input type="text" id="containerName" required class="w-full p-2 border border-gray-300 rounded-lg mb-4 dark:border-blue-300">
             <label for="entry" class="block mb-2 text-sm font-medium dark:text-white">List repo:</label>
             <form action="/update" method="POST">
                 <input type="hidden" name="os_type" value="rhel">

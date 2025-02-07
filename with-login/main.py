@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import os
 import docker
+import random
+import string
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -35,6 +37,9 @@ def read_file(file_path):
 def write_file(file_path, content):
     with open(file_path, "w") as file:
         file.write(content.strip() + "\n")
+
+# def generate_random():
+#     return ''.join(random.choices(string.ascii_letters + string.digits, k=5))
 
 class User(UserMixin):
     def __init__(self, id):
@@ -98,7 +103,10 @@ def list_containers():
 @login_required
 def start_mirror():
     global mirror_data_path_rhel, mirror_data_path_ubuntu
+    rand = ''.join(random.choices(string.ascii_letters + string.digits, k=5))
     os_type = request.args.get('os_type', 'ubuntu')
+    containerName = request.args.get('containerName') or rand
+    print(containerName)
     if not mirror_data_path_ubuntu and not mirror_data_path_rhel:
         return {"status": "warning", "message": "Path belum diatur!"}
     
@@ -107,7 +115,7 @@ def start_mirror():
         return {"status": "warning", "message": "mirror.list belum ada"}
 
     try:
-        container_name = f"mirror-{os_type}"
+        container_name = f"mirror-{os_type}-{containerName}"
         image = "keyz078/apt-mirror:latest" if os_type == "ubuntu" else "keyz078/reposync:ubi8"
         bind_paths = {
             os.path.abspath(mirror_list_file[0] if os_type == "ubuntu" else mirror_list_file[1]): {
@@ -189,12 +197,13 @@ def stream_logs():
 @login_required
 def delete():
     containerID = request.form['container_id']
+    os_type = request.form['os_type']
     container = client.containers.get(containerID)
     try:
         container.remove(force=True)
         print(f"Container {containerID} berhasil dihapus")
         flash("Container berhasil dihapus", "success")
-        return redirect(url_for('index'))
+        return redirect(url_for("index" if os_type == "ubuntu" else "rhel"))
     except Exception as e:
         return True
 
