@@ -2,7 +2,7 @@
 
 Hi, this is my first python project, based on what I usually do, this tool makes it easy for us to mirror repos, currently the existing feature only does remote mirroring based on a web server with flask, to setup a local repository you still have to prepare a web server and do symlinks manually.
 
-Supported OS for mirro:
+Supported OS for mirror:
 - Ubuntu/Debian base
 - Rhel/Fedora/Centos/Rocky RPM base
 
