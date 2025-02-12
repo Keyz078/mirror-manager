@@ -12,21 +12,12 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
-mirror_data_path_ubuntu = ""
-mirror_data_path_rhel = ""
-mirror_list_file = ["mirror.list", "repo.conf"]
-log_file = ["mirror.log", "reposync.log"]
-
 repo_path = "repos"
 log_path = "logs"
 mirror_files = {}
+
 # Connect to socket
 client = docker.from_env()
-
-sites = {
-    "ubuntu": "index",
-    "rhel": "rhel"
-}
 
 def get_container():
     return client.containers.list(all=True, filters={"name": "mirror"})
@@ -54,14 +45,7 @@ def load_user(user_id):
 @app.route("/")
 @login_required
 def index():
-    entries = read_file(mirror_list_file[0])
-    return render_template("index.html", mirror_data_path_ubuntu=mirror_data_path_ubuntu, entries=entries)
-
-@app.route("/rhel")
-@login_required
-def rhel():
-    entries = read_file(mirror_list_file[1])
-    return render_template("rhel.html", mirror_data_path_rhel=mirror_data_path_rhel, entries=entries)
+    return render_template("index.html")
 
 @app.route("/containers")
 @login_required
@@ -80,7 +64,7 @@ def start_mirror():
     container_name = request.form['container_name'] or rand
     os_type = request.form['os_type']
     if os_type not in ["ubuntu", "rhel"]:
-        return {"status": "Error", "message": "OS Type salah!"}
+        return {"status": "Error", "message": "Wrong OS Type!"}
     repo_list = request.form['repo_list']
     
     try:
@@ -95,10 +79,10 @@ def start_mirror():
                 f.write("")
         
         if not os.path.isfile(mirror_file):
-            raise Exception(f"Error: {mirror_file} harus berupa file, bukan direktori.")
+            raise Exception(f"Error: {mirror_file} must be a file, not a directory.")
 
         if not os.path.isdir(mirror_path):
-            raise Exception(f"Error: {mirror_path} harus berupa direktori, bukan file.")
+            raise Exception(f"Error: {mirror_path} must be a directory, not a file.")
 
         container_name = f"mirror-{os_type}-{container_name}"
         mirror_files[container_name] = mirror_file
@@ -131,7 +115,7 @@ def start_mirror():
             for line in container.logs(stream=True):
                 log.write(line.decode("utf-8"))
 
-        return {"status": "Complete", "message": f"Proses mirroring {container_name} telah selesai."}
+        return {"status": "Complete", "message": f"The {container_name} mirroring process has been completed."}
 
     except Exception as e:
         print(e)
@@ -140,16 +124,14 @@ def start_mirror():
 @app.route("/stream_logs", methods=["POST"])
 @login_required
 def stream_logs():
-    # containerID = request.args.get('containerID', None)
     containerID = request.form['container_id']
-    
     def generate_logs():
         try:
             container = client.containers.get(containerID)
             for log in container.logs(stream=True):
                 yield f"{log.decode('utf-8')}"
         except Exception as e:
-            yield f"Container telah terhapus"
+            yield f"This container no longer exists."
 
     return Response(generate_logs(), content_type='text/event-stream')
 
@@ -164,18 +146,18 @@ def delete():
     container = client.containers.get(containerID)
     try:
         container.remove(force=True)
-        print(f"Container {containerID} berhasil dihapus")
+        print(f"Container {containerID} has been deleted")
         if container_name in mirror_files:
             file_to_delete = mirror_files.pop(container_name)
             print(file_to_delete)
             if os.path.exists(file_to_delete):
                 os.remove(file_to_delete)
-                print(f"File {file_to_delete} dihapus.")
+                print(f"File {file_to_delete} has been deleted.")
         log_file = os.path.join(log_path, f"{container_name}.log")
         if os.path.exists(log_file):
             os.remove(log_file)
-            print(f"Log {log_file} dihapus.")
-        flash("Container berhasil dihapus", "success")
+            print(f"Log {log_file} has been deleted.")
+        flash("Container was successfully deleted!", "success")
         return redirect(url_for('index'))
     except Exception as e:
         return {"status": "Error", "message": f"{e}"}
@@ -191,14 +173,14 @@ def login():
             login_user(user)
             return redirect(url_for("index"))
         else:
-            flash("Username atau password salah.", "logout")
+            flash("Wrong username or password.", "logout")
 
     return render_template("login.html")
 
 @app.route("/logout", methods=["POST"])
 def logout():
     logout_user()
-    flash("Anda telah logout.", "logout")
+    flash("Successfully logged out!.", "logout")
     return redirect(url_for("index"))
 
 if __name__ == "__main__":

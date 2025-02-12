@@ -36,7 +36,6 @@ function refreshTable() {
             table += `</tbody></table>`;
             document.getElementById('table-container').innerHTML = table;
 
-            // Attach confirm event listener setelah tabel diperbarui
             document.querySelectorAll('.delete-btn').forEach(button => {
                 button.addEventListener('click', function(event) {
                     if (!confirm('Are you sure you want to delete this container?')) {
@@ -49,10 +48,8 @@ function refreshTable() {
 }
 
 
-// Auto-refresh setiap 5 detik
+// Auto-refresh every 15 second
 setInterval(refreshTable, 15000);
-
-// Jalankan saat halaman dimuat
 window.onload = refreshTable;
 
 // Close alert
@@ -75,7 +72,6 @@ if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localS
 var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
 var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
 
-// Change the icons inside the button based on previous settings
 if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     themeToggleLightIcon.classList.remove('hidden');
 } else {
@@ -86,11 +82,9 @@ var themeToggleBtn = document.getElementById('theme-toggle');
 
 themeToggleBtn.addEventListener('click', function() {
 
-    // toggle icons inside button
     themeToggleDarkIcon.classList.toggle('hidden');
     themeToggleLightIcon.classList.toggle('hidden');
 
-    // if set via local storage previously
     if (localStorage.getItem('color-theme')) {
         if (localStorage.getItem('color-theme') === 'light') {
             document.documentElement.classList.add('dark');
@@ -100,7 +94,6 @@ themeToggleBtn.addEventListener('click', function() {
             localStorage.setItem('color-theme', 'light');
         }
 
-    // if NOT set via local storage previously
     } else {
         if (document.documentElement.classList.contains('dark')) {
             document.documentElement.classList.remove('dark');
@@ -124,7 +117,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (localStorage.getItem("mirror_path")) {
         mirrorPathInput.value = localStorage.getItem("mirror_path");
-        defaultCheckbox.checked = true; // Jika ada data, checkbox aktif
+        defaultCheckbox.checked = true;
     }
 
     defaultCheckbox.addEventListener("change", function () {
@@ -150,9 +143,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     form.addEventListener("submit", function (event) {
-        event.preventDefault(); // Hindari reload halaman
-        alert("🚀 Menjalankan container...");
-        modal.classList.add("hidden"); // Langsung tutup modal setelah submit
+        event.preventDefault();
+        alert("🚀 Initializing container...");
+        modal.classList.add("hidden"); 
 
         const formData = new FormData(form);
 
@@ -163,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(response => response.json())
         .then(data => {
             if (data.status === "Complete") {
-                alert(`✅ Sukses: ${data.message}`);
+                alert(`✅ Success: ${data.message}`);
             } else {
                 alert(`❌ Error: ${data.message}`);
             }
