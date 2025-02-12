@@ -17,6 +17,9 @@ mirror_data_path_rhel = ""
 mirror_list_file = ["mirror.list", "repo.conf"]
 log_file = ["mirror.log", "reposync.log"]
 
+repo_path = "repos"
+log_path = "logs"
+mirror_files = {}
 # Connect to socket
 client = docker.from_env()
 
@@ -37,9 +40,6 @@ def read_file(file_path):
 def write_file(file_path, content):
     with open(file_path, "w") as file:
         file.write(content.strip() + "\n")
-
-# def generate_random():
-#     return ''.join(random.choices(string.ascii_letters + string.digits, k=5))
 
 class User(UserMixin):
     def __init__(self, id):
@@ -63,35 +63,6 @@ def rhel():
     entries = read_file(mirror_list_file[1])
     return render_template("rhel.html", mirror_data_path_rhel=mirror_data_path_rhel, entries=entries)
 
-@app.route("/set_path", methods=["POST"])
-@login_required
-def set_path():
-    global mirror_data_path_ubuntu, mirror_data_path_rhel, sites
-    os_type = request.form["os_type"]
-    new_path = request.form.get(f"mirror_data_path_{os_type}", "").strip()
-
-    if not new_path:
-        flash("Path mirror data tidak boleh kosong.", "error")
-    else:
-        print(f"Set path baru ke {new_path}")
-        if os_type == "ubuntu":
-            mirror_data_path_ubuntu = new_path
-        elif os_type == "rhel":
-            mirror_data_path_rhel = new_path
-        flash("Path mirror data berhasil diperbarui!", "success")
-        return redirect(url_for(f"{sites[os_type]}"))
-
-@app.route("/update", methods=["POST"])
-@login_required
-def update():
-    new_repo = request.form["entry"]
-    os_type = request.form["os_type"]
-    mirror_file = mirror_list_file[0] if os_type == "ubuntu" else mirror_list_file[1]
-    
-    write_file(mirror_file, new_repo)
-    flash("list mirror repo berhasil diperbarui!", "success")
-    return redirect(url_for(f"{sites[os_type]}"))
-
 @app.route("/containers")
 @login_required
 def list_containers():
@@ -99,30 +70,46 @@ def list_containers():
     container_data = [{"id": c.id, "name": c.name, "status": c.status} for c in containers]
     return jsonify(container_data)
 
-@app.route("/start_mirror", methods=["GET"])
+
+@app.route("/add", methods=["POST"])
 @login_required
 def start_mirror():
-    global mirror_data_path_rhel, mirror_data_path_ubuntu
+    global repo_path, mirror_files
     rand = ''.join(random.choices(string.ascii_letters + string.digits, k=5))
-    os_type = request.args.get('os_type', 'ubuntu')
-    containerName = request.args.get('containerName') or rand
-    print(containerName)
-    if not mirror_data_path_ubuntu and not mirror_data_path_rhel:
-        return {"status": "warning", "message": "Path belum diatur!"}
+    mirror_path = request.form['mirror_path']
+    container_name = request.form['container_name'] or rand
+    os_type = request.form['os_type']
+    if os_type not in ["ubuntu", "rhel"]:
+        return {"status": "Error", "message": "OS Type salah!"}
+    repo_list = request.form['repo_list']
     
-    mirror_list_file_exists = os.path.exists(mirror_list_file[0]) and os.path.exists(mirror_list_file[1])
-    if not mirror_list_file_exists:
-        return {"status": "warning", "message": "mirror.list belum ada"}
-
     try:
-        container_name = f"mirror-{os_type}-{containerName}"
+        os.makedirs(repo_path, exist_ok=True)
+        os.makedirs(mirror_path, exist_ok=True)
+        file_name = f'mirror-{os_type}-{container_name}.list' if os_type == 'ubuntu' else f'mirror-{os_type}-{container_name}.conf'
+        mirror_file = os.path.join(repo_path, file_name)
+        write_file(mirror_file, repo_list)
+
+        if not os.path.exists(mirror_file):
+            with open(mirror_file, "w") as f:
+                f.write("")
+        
+        if not os.path.isfile(mirror_file):
+            raise Exception(f"Error: {mirror_file} harus berupa file, bukan direktori.")
+
+        if not os.path.isdir(mirror_path):
+            raise Exception(f"Error: {mirror_path} harus berupa direktori, bukan file.")
+
+        container_name = f"mirror-{os_type}-{container_name}"
+        mirror_files[container_name] = mirror_file
         image = "keyz078/apt-mirror:latest" if os_type == "ubuntu" else "keyz078/reposync:ubi8"
+
         bind_paths = {
-            os.path.abspath(mirror_list_file[0] if os_type == "ubuntu" else mirror_list_file[1]): {
+            os.path.abspath(mirror_file): {
                 "bind": "/etc/apt/mirror.list" if os_type == "ubuntu" else "/opt/scripts/config.conf", 
                 "mode": "ro"
             },
-            os.path.abspath(mirror_data_path_ubuntu if os_type == "ubuntu" else mirror_data_path_rhel): {
+            os.path.abspath(mirror_path): {
                 "bind": "/var/spool/apt-mirror" if os_type == "ubuntu" else "/mirror", 
                 "mode": "rw"
             }
@@ -133,79 +120,65 @@ def start_mirror():
             image=image,
             volumes=bind_paths,
             detach=True,
-            remove=True,
             stdout=True,
             stderr=True
         )
 
-        log_file_path = log_file[0] if os_type == "ubuntu" else log_file[1]
+        os.makedirs(log_path, exist_ok=True)
+        log_name = f'{container_name}.log'
+        log_file_path = os.path.join(log_path, log_name)
         with open(log_file_path, "w") as log:
             for line in container.logs(stream=True):
                 log.write(line.decode("utf-8"))
 
-        return {"status": "Complete", "message": "Proses mirroring telah selesai."}
+        return {"status": "Complete", "message": f"Proses mirroring {container_name} telah selesai."}
 
     except Exception as e:
         print(e)
-        return {"status": "running", "message": "Proses masih berjalan."}
+        return {"status": "Error", "message": str(e)}
 
-@app.route("/stop_container")
-@login_required
-def stop_container():
-    global container
-    try:
-        stop = container.stop()
-        if stop:        
-            return {"status": "success", "message": "Container berhasil dihentikan"}
-    except Exception:
-        return {"status": "warning", "message": "Container tidak ada atau sudah terhapus"}
-
-@app.route("/container_logs", methods=["GET"])
-@login_required
-def container_logs():
-    os_type = request.args.get('os_type', 'ubuntu')
-    print(os_type)
-    log_file_path = log_file[0] if os_type == "ubuntu" else log_file[1]
-    
-    if not os.path.exists(log_file_path):
-        flash("Log tidak ditemukan. Pastikan proses mirroring sudah dijalankan.", "error")
-        return redirect(url_for("index" if os_type == "ubuntu" else "rhel"))
-
-    def generate_logs():
-        with open(log_file_path, "r") as log_file_stream:
-            for line in log_file_stream:
-                yield f"{line}"
-
-    return Response(generate_logs(), mimetype="text/plain")
-
-@app.route("/stream_logs", methods=["GET"])
+@app.route("/stream_logs", methods=["POST"])
 @login_required
 def stream_logs():
-    containerID = request.args.get('containerID', None)
-    container = client.containers.get(containerID)
+    # containerID = request.args.get('containerID', None)
+    containerID = request.form['container_id']
     
     def generate_logs():
         try:
+            container = client.containers.get(containerID)
             for log in container.logs(stream=True):
                 yield f"{log.decode('utf-8')}"
         except Exception as e:
-            yield f"Tidak ada container yang running"
+            yield f"Container telah terhapus"
 
     return Response(generate_logs(), content_type='text/event-stream')
 
 @app.route("/delete", methods=["POST"])
 @login_required
 def delete():
+    global mirror_files
+    print(mirror_files)
     containerID = request.form['container_id']
+    container_name = request.form['container_name']
     os_type = request.form['os_type']
     container = client.containers.get(containerID)
     try:
         container.remove(force=True)
         print(f"Container {containerID} berhasil dihapus")
+        if container_name in mirror_files:
+            file_to_delete = mirror_files.pop(container_name)
+            print(file_to_delete)
+            if os.path.exists(file_to_delete):
+                os.remove(file_to_delete)
+                print(f"File {file_to_delete} dihapus.")
+        log_file = os.path.join(log_path, f"{container_name}.log")
+        if os.path.exists(log_file):
+            os.remove(log_file)
+            print(f"Log {log_file} dihapus.")
         flash("Container berhasil dihapus", "success")
-        return redirect(url_for("index" if os_type == "ubuntu" else "rhel"))
+        return redirect(url_for('index'))
     except Exception as e:
-        return True
+        return {"status": "Error", "message": f"{e}"}
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -218,14 +191,14 @@ def login():
             login_user(user)
             return redirect(url_for("index"))
         else:
-            flash("Username atau password salah.", "error")
+            flash("Username atau password salah.", "logout")
 
     return render_template("login.html")
 
 @app.route("/logout", methods=["POST"])
 def logout():
     logout_user()
-    flash("Anda telah logout.", "success")
+    flash("Anda telah logout.", "logout")
     return redirect(url_for("index"))
 
 if __name__ == "__main__":

@@ -22,91 +22,65 @@
                         <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg">Logout</button>
                     </form>
                 </div>
-                <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
-                    <ul class="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-                        <li>
-                            <a href="{{ url_for('index') }}" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Ubuntu</a>
-                        </li>
-                        <li>
-                            <a href="{{ url_for('rhel') }}" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Rhel/Centos</a>
-                        </li>
-                    </ul>
-                </div>
             </div>
         </nav>
         <div class="container mx-auto mt-16 p-6">
-            <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-6 mb-6 dark:bg-gray-500 dark:border-gray-100 dark:text-white">
-                <strong class="font-semibold">Notes:</strong> Mirror manager ini baru support debian base
-            </div>
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-            {% for category, message in messages %}
-            {% if category == 'success' %}
-            <div id="alert-border-1" class="flex items-center p-4 mb-4 text-green-800 border-t-4 border-green-300 bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
-                <div class="ms-3 text-sm font-medium">
-                {{ message }}
-                </div>
-                <button id="close-alert" type="button" class="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-blue-400 dark:hover:bg-gray-700" aria-label="Close">
-                    <span class="sr-only">Dismiss</span>
-                    <svg class="w-3 h-3" aria-hidden="true" fill="none" viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                    </svg>
-                </button>
-            </div>
-            {% else %}
-            <div id="alert-border-1" class="flex items-center p-4 mb-4 text-red-800 border-t-4 border-red-300 bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-                <div class="ms-3 text-sm font-medium">
-                {{ message }}
-                </div>
-                <button id="close-alert" type="button" class="ms-auto -mx-1.5 -my-1.5 bg-red-50 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700" aria-label="Close">
-                    <span class="sr-only">Dismiss</span>
-                    <svg class="w-3 h-3" aria-hidden="true" fill="none" viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                    </svg>
-                </button>
-            </div>
-            {% endif %}
-            {% endfor %}
-            {% endif %}
-            {% endwith %}
-            <!-- Form mirror path -->
-            <form action="/set_path" method="POST" class="bg-white p-6 rounded-lg shadow-md mb-6 dark:bg-gray-700 dark:border-gray-100 dark:text-gray-500">
-                <label for="mirror_data_path" class="block text-sm font-medium mb-2 dark:text-white">Path Mirror Data:</label>
-                <input type="hidden" name="os_type" value="ubuntu">
-                <input type="text" id="mirror_data_path_ubuntu" name="mirror_data_path_ubuntu" value="{{ mirror_data_path_ubuntu }}" placeholder="/path/to/mirror/data" required class="w-full p-2 border border-gray-300 rounded-lg mb-4 dark:border-blue-300">
-                <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-lg">Simpan Path</button>
-            </form>
-
-            <div class="bg-white p-6 rounded-lg shadow-md mb-6 dark:bg-gray-700 dark:border-gray-100 dark:text-gray-500">
-                <!-- <textarea class="resize-none md:resize">{{ entries }}</textarea> -->
-                <label for="containerName" class="block mb-2 text-sm font-medium dark:text-white">Container Name:</label>
-                <input type="text" id="containerName" required class="w-full p-2 border border-gray-300 rounded-lg mb-4 dark:border-blue-300">
-                <label for="entry" class="block mb-2 text-sm font-medium dark:text-white">List repo:</label>
-                <form action="/update" method="POST">
-                <input type="hidden" name="os_type" value="ubuntu">
-                <textarea id="entry" name="entry" rows="15" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:border-blue-300" placeholder="repo list...">{{ entries | join('\n') }}</textarea>
-                <br/>
-                <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-lg">Update</button>
-                </form>
-            </div>
-            {% if not entries %}
-            <p class="text-yellow-700 mb-6">Warning: Tidak ada repository dalam file mirror.list.</p>
-            {% endif %}
-
             <!-- Container table -->
             <div class="bg-white p-6 rounded-lg shadow-md mb-6 dark:bg-gray-700 dark:border-gray-100 dark:text-gray-500">
-                <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="refreshTable()">
-                    Refresh
-                </button><br><br>
+                <div class="flex justify-between">
+                    <button id="openModal" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
+                        Create New
+                    </button>
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="refreshTable()">
+                        Refresh
+                    </button>
+                </div><br>
                 <div class="relative overflow-x-auto" id="table-container"></div>
             </div>
-
-            <!-- Button -->
-            <div class="flex space-x-3 mb-6">
-                <button type="submit" class="w-full bg-green-500 text-white p-2 rounded-lg" id="startMirrorBtn">Jalankan Proses Mirroring</button>
-                <!-- <button type="submit" class="w-full bg-red-500 text-white p-2 rounded-lg" id="stopContainerBtn">Stop Container</button> -->
-                <button class="w-full bg-blue-500 text-white p-2 rounded-lg" id="lastLogBtn">Lihat log terakhir</button>
+            <!-- Modal -->
+            <div id="modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+                <div class="relative p-4 w-11/12 max-w-3xl bg-white p-6 rounded-lg shadow-lg dark:text-white dark:bg-gray-700">
+                    <h2 class="text-xl font-semibold mb-4">Create New Container</h2>
+                    <form action="/add" method="POST" class="p-4 md:p-5">
+                        <div class="grid gap-4 mb-4 grid-cols-2">
+                            <div class="col-span-2">
+                                <label for="mirror_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mirror Path:</label>
+                                <input type="text" name="mirror_path" id="mirror_path" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="/mirror" required="">
+                                <div class="mt-3 flex items-center mb-4">
+                                    <input id="path-checkbox" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm dark:bg-gray-700 dark:border-gray-600">
+                                    <label for="path-checkbox" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Set default?</label>
+                                </div>
+                            </div>
+                            <div class="col-span-2 sm:col-span-1">
+                                <label for="container_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name (Optional):</label>
+                                <input type="text" name="container_name" id="container_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Default: Random">
+                            </div>
+                            <div class="col-span-2 sm:col-span-1">
+                                <label for="os_type" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">OS Type:</label>
+                                <select id="os_type" name="os_type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                    <option value="" selected>OS Type</option>
+                                    <option value="ubuntu">Ubuntu</option>
+                                    <option value="rhel">Rhel/Centos</option>
+                                </select>
+                            </div>
+                            <div class="col-span-2">
+                                <label for="repo_list" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Repos:</label>
+                                <textarea id="repo_list" name="repo_list" rows="15" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Repo list"></textarea>
+                            </div>
+                        </div>
+                        <div class="flex justify-between">
+                            <button type="button" id="closeModal" class="text-gray-600 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-white">
+                                Cancel
+                            </button>
+                            <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
+                                Start New Container
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
+            <!-- Button -->
         </div>
         <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     </body>
