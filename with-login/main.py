@@ -158,9 +158,37 @@ def delete():
             os.remove(log_file)
             print(f"Log {log_file} has been deleted.")
         flash("Container was successfully deleted!", "success")
-        return redirect(url_for('index'))
     except Exception as e:
-        return {"status": "Error", "message": f"{e}"}
+        flash(f"{e}", "error")
+    return redirect(url_for('index'))
+
+@app.route("/restart", methods=["POST"])
+@login_required
+def restart():
+    containerID = request.form['container_id']
+    container = client.containers.get(containerID)
+    try:
+        print(f"Restarting container {containerID}")
+        container.restart()
+        flash("Container restarted.", "success")
+    except Exception as e:
+        flash("Error while restarting container.", "error")
+
+    return redirect(url_for('index'))
+
+@app.route("/stop", methods=["POST"])
+@login_required
+def stop():
+    containerID = request.form['container_id']
+    container = client.containers.get(containerID)
+    try:
+        print(f"Stopping container {containerID}")
+        container.stop()
+        flash("Container stopped.", "success")
+    except Exception as e:
+        flash("Error while stopping container.", "error")
+
+    return redirect(url_for('index'))
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
