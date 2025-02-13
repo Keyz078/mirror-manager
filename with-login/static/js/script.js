@@ -18,6 +18,14 @@ function refreshTable() {
                             <td class="px-6 py-4 break-words">${row.status}</td>
                             <td class="px-6 py-4 text-center">
                                 <div class="flex justify-center space-x-2">
+                                    <form action="/stop" method="POST">
+                                        <input type="hidden" name="container_id" value="${row.id}">
+                                        <button type="submit" class="bg-gray-400 text-white px-3 py-2 rounded-lg stop-btn">Stop</button>
+                                    </form>
+                                    <form action="/restart" method="POST">
+                                        <input type="hidden" name="container_id" value="${row.id}">
+                                        <button type="submit" class="bg-yellow-500 text-white px-3 py-2 rounded-lg restart-btn">Restart</button>
+                                    </form>
                                     <form action="/delete" method="POST">
                                         <input type="hidden" name="container_name" value="${row.name}">
                                         <input type="hidden" name="container_id" value="${row.id}">
@@ -39,7 +47,6 @@ function refreshTable() {
             document.querySelectorAll('.delete-btn').forEach(button => {
                 button.addEventListener('click', function(event) {
                     if (!confirm('Are you sure you want to delete this container?')) {
-                        event.preventDefault();
                     }
                 });
             });
