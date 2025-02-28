@@ -4,7 +4,6 @@ import os
 import docker
 import random
 import string
-import subprocess
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
