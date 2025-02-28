@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Apt-Mirror Manager</title>
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/python.ico') }}">
         <!-- Tailwind CSS CDN -->
         <!-- <script src="https://cdn.tailwindcss.com"></script> -->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.min.css') }}">
@@ -70,13 +71,13 @@
             </div>
             <!-- Modal -->
             <div id="modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-                <div class="relative p-4 w-11/12 max-w-3xl bg-white p-6 rounded-lg shadow-lg dark:text-white dark:bg-gray-700">
+                <div class="relative w-full max-w-3xl bg-white p-2 sm:p-6 rounded-lg shadow-lg dark:text-white dark:bg-gray-700 max-h-[90vh] overflow-y-auto">
                     <h2 class="text-xl font-semibold mb-4">Create New Container</h2>
-                    <form action="/add" method="POST" class="p-4 md:p-5">
-                        <div class="grid gap-4 mb-4 grid-cols-2">
+                    <form action="/add" method="POST" class="p-2 sm:p-5">
+                        <div class="grid gap-4 mb-4 grid-cols-1 sm:grid-cols-2">
                             <div class="col-span-2">
                                 <label for="mirror_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mirror Path:</label>
-                                <input type="text" name="mirror_path" id="mirror_path" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="/mirror" required="">
+                                <input type="text" name="mirror_path" id="mirror_path" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="/mirror" required>
                                 <div class="mt-3 flex items-center mb-4">
                                     <input id="path-checkbox" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm dark:bg-gray-700 dark:border-gray-600">
                                     <label for="path-checkbox" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Set default?</label>
@@ -84,11 +85,11 @@
                             </div>
                             <div class="col-span-2 sm:col-span-1">
                                 <label for="container_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name (Optional):</label>
-                                <input type="text" name="container_name" id="container_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Default: Random">
+                                <input type="text" name="container_name" id="container_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Default: Random">
                             </div>
                             <div class="col-span-2 sm:col-span-1">
                                 <label for="os_type" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">OS Type:</label>
-                                <select id="os_type" name="os_type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <select id="os_type" name="os_type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                                     <option value="" selected>OS Type</option>
                                     <option value="ubuntu">Ubuntu</option>
                                     <option value="rhel">Rhel/Centos</option>
@@ -96,7 +97,7 @@
                             </div>
                             <div class="col-span-2">
                                 <label for="repo_list" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Repos:</label>
-                                <textarea id="repo_list" name="repo_list" rows="15" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Repo list"></textarea>
+                                <textarea id="repo_list" name="repo_list" rows="10" class="block p-2 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Repo list" required></textarea>
                             </div>
                         </div>
                         <div class="flex justify-between">

@@ -3,7 +3,7 @@ function refreshTable() {
         .then(response => response.json())
         .then(data => {
             let table = `<table class="w-full table-auto text-sm text-left text-gray-500 dark:text-gray-400" id="containerTable">
-                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-600 dark:text-gray-200">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-600 dark:text-gray-200">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 w-1/3 min-w-0">Container Name</th>
                                     <th scope="col" class="px-6 py-3 w-1/4 min-w-0">Status</th>
