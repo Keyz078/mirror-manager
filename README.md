@@ -1,6 +1,34 @@
 # mirror-manager
 
-Hi, this is my first python project, based on what I usually do, this tool makes it easy for us to mirror repos, currently the existing feature only does remote mirroring based on a web server with flask, to setup a local repository you still have to prepare a web server and do symlinks manually.
+Hi, this is my first python project, based on what I usually do, this tool makes it easy for us to mirror repos, currently the existing feature only does remote mirroring based on a web server with flask.
+
+### New!
+
+1. Fix sync path for rhel.
+2. Auto symlink feature for ubuntu type os to simplify repo path.
+
+New path structure should be like this:
+```
+/repo-local/
+├── rhel
+│   └── rhel8
+├── ubuntu
+│   ├── archive
+│   ├── mongodb
+│   ├── nginx
+│   ├── postgresql
+│   ├── security
+│   └── zabbix
+└── ubuntu-sync
+    ├── archive.ubuntu.com
+    ├── download.postgresql.org
+    ├── nginx.org
+    ├── repo.mongodb.org
+    ├── repo.zabbix.com
+    └── security.ubuntu.com
+```
+
+> Symlinked ubuntu-sync -> ubuntu
 
 ### How it works?
 
