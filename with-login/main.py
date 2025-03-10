@@ -19,6 +19,44 @@ mirror_files = {}
 # Connect to socket
 client = docker.from_env()
 
+# Function
+
+def find_and_symlink_folders(source_root, target_root):
+    base_repos = {"archive.ubuntu.com": "archive", "security.ubuntu.com": "security"}
+    
+    for root, dirs, _ in os.walk(source_root):
+        for folder in ('dists', 'pool'):
+            if folder in dirs:
+                old_path = os.path.join(root, folder)
+                
+                relative_path = os.path.relpath(root, source_root).split(os.sep)
+                
+                domain_name = relative_path[0]
+                
+                if domain_name in base_repos:
+                    domain_name = base_repos[domain_name]  
+                else:
+                    domain_parts = domain_name.split('.')
+                    if len(domain_parts) > 2:
+                        domain_name = domain_parts[-2]  
+                    else:
+                        domain_name = domain_parts[0] 
+                
+                sub_path = relative_path[1:-1] if len(relative_path) > 2 else []
+                
+                if sub_path and sub_path[0].lower() == domain_name.lower():
+                    sub_path = sub_path[1:]
+                
+                new_path = os.path.join(target_root, domain_name, *sub_path, folder)
+                
+                os.makedirs(os.path.dirname(new_path), exist_ok=True)
+                
+                if not os.path.exists(new_path):
+                    os.symlink(old_path, new_path)
+                    print(f"Symlinked {old_path} -> {new_path}")
+                else:
+                    print(f"Symlink already exists: {new_path}")
+
 def get_container():
     return client.containers.list(all=True, filters={"name": "mirror"})
 
@@ -60,66 +98,95 @@ def list_containers():
 def start_mirror():
     global repo_path, mirror_files
     rand = ''.join(random.choices(string.ascii_letters + string.digits, k=5))
+    
     mirror_path = request.form['mirror_path']
     container_name = request.form['container_name'] or rand
     os_type = request.form['os_type']
+
     if os_type not in ["ubuntu", "rhel"]:
         return {"status": "Error", "message": "Wrong OS Type!"}
+
+    new_mirror_path = os.path.join(mirror_path, "ubuntu-sync" if os_type == "ubuntu" else "rhel")
     repo_list = request.form['repo_list']
-    
+
+    rhel_version = request.form.get("rhel_version", "").strip()
+
     try:
         os.makedirs(repo_path, exist_ok=True)
-        os.makedirs(mirror_path, exist_ok=True)
-        file_name = f'mirror-{os_type}-{container_name}.list' if os_type == 'ubuntu' else f'mirror-{os_type}-{container_name}.conf'
-        mirror_file = os.path.join(repo_path, file_name)
-        write_file(mirror_file, repo_list)
+        os.makedirs(new_mirror_path, exist_ok=True)
 
-        if not os.path.exists(mirror_file):
-            with open(mirror_file, "w") as f:
-                f.write("")
-        
+        file_ext = "list" if os_type == "ubuntu" else "conf"
+        file_name = f'mirror-{os_type}-{container_name}.{file_ext}'
+        mirror_file = os.path.join(repo_path, file_name)
+
+        with open(mirror_file, "w") as f:
+            if os_type == "ubuntu":
+                f.write(repo_list)
+            else:  # RHEL/CentOS
+                if not rhel_version:
+                    return {"status": "Error", "message": "RHEL Version and Repo Name are required for RHEL mirroring."}
+                f.write(repo_list)
+
         if not os.path.isfile(mirror_file):
             raise Exception(f"Error: {mirror_file} must be a file, not a directory.")
 
-        if not os.path.isdir(mirror_path):
-            raise Exception(f"Error: {mirror_path} must be a directory, not a file.")
+        if not os.path.isdir(new_mirror_path):
+            raise Exception(f"Error: {new_mirror_path} must be a directory, not a file.")
 
-        container_name = f"mirror-{os_type}-{container_name}"
-        mirror_files[container_name] = mirror_file
-        image = "keyz078/apt-mirror:latest" if os_type == "ubuntu" else "keyz078/reposync:ubi8"
+        image = "keyz078/apt-mirror:latest" if os_type == "ubuntu" else "keyz078/reposync:dev"
 
         bind_paths = {
             os.path.abspath(mirror_file): {
                 "bind": "/etc/apt/mirror.list" if os_type == "ubuntu" else "/opt/scripts/config.conf", 
                 "mode": "ro"
             },
-            os.path.abspath(mirror_path): {
-                "bind": "/var/spool/apt-mirror" if os_type == "ubuntu" else "/mirror", 
+            os.path.abspath(new_mirror_path): {
+                "bind": "/var/spool/apt-mirror/mirror" if os_type == "ubuntu" else "/mirror", 
                 "mode": "rw"
             }
         }
+
+        container_name = f"mirror-{os_type}-{container_name}"
+        mirror_files[container_name] = mirror_file
+
+        existing_containers = [c.name for c in client.containers.list(all=True)]
+        if container_name in existing_containers:
+            client.containers.get(container_name).remove(force=True)
+
+        env_vars = {} 
+        if os_type == "rhel":
+            env_vars = {
+                "VERSION": rhel_version
+            }
 
         container = client.containers.run(
             name=container_name,
             image=image,
             volumes=bind_paths,
+            environment=env_vars,
             detach=True,
             stdout=True,
             stderr=True
         )
 
         os.makedirs(log_path, exist_ok=True)
-        log_name = f'{container_name}.log'
-        log_file_path = os.path.join(log_path, log_name)
+        log_file_path = os.path.join(log_path, f"{container_name}.log")
+
         with open(log_file_path, "w") as log:
             for line in container.logs(stream=True):
                 log.write(line.decode("utf-8"))
+
+        # Do symlink if ubuntu
+        if os_type == "ubuntu":
+            target = os.path.join(mirror_path, "ubuntu")
+            find_and_symlink_folders(new_mirror_path, target)
 
         return {"status": "Complete", "message": f"The {container_name} mirroring process has been completed."}
 
     except Exception as e:
         print(e)
         return {"status": "Error", "message": str(e)}
+
 
 @app.route("/stream_logs", methods=["POST"])
 @login_required

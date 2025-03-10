@@ -114,7 +114,6 @@ themeToggleBtn.addEventListener('click', function() {
 
 });
 
-// Modal Form
 document.addEventListener("DOMContentLoaded", function () {
     const modal = document.getElementById("modal");
     const openModalBtn = document.getElementById("openModal");
@@ -122,12 +121,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = modal.querySelector("form");
     const mirrorPathInput = document.getElementById("mirror_path");
     const defaultCheckbox = document.getElementById("path-checkbox");
+    const osTypeSelect = document.getElementById("os_type");
+    const rhelOptions = document.getElementById("rhel-options");
 
+    // Load stored value
     if (localStorage.getItem("mirror_path")) {
         mirrorPathInput.value = localStorage.getItem("mirror_path");
         defaultCheckbox.checked = true;
     }
 
+    // Handle default path checkbox
     defaultCheckbox.addEventListener("change", function () {
         if (this.checked) {
             localStorage.setItem("mirror_path", mirrorPathInput.value);
@@ -139,6 +142,15 @@ document.addEventListener("DOMContentLoaded", function () {
     mirrorPathInput.addEventListener("input", function () {
         if (defaultCheckbox.checked) {
             localStorage.setItem("mirror_path", this.value);
+        }
+    });
+
+    // Show/hide RHEL input fields
+    osTypeSelect.addEventListener("change", function () {
+        if (this.value === "rhel") {
+            rhelOptions.classList.remove("hidden");
+        } else {
+            rhelOptions.classList.add("hidden");
         }
     });
 
@@ -169,5 +181,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert(`❌ Error: ${data.message}`);
             }
         })
+        .catch(error => {
+            alert(`❌ Error: ${error.message}`);
+        });
     });
 });
