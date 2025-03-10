@@ -114,6 +114,7 @@ themeToggleBtn.addEventListener('click', function() {
 
 });
 
+// Modal
 document.addEventListener("DOMContentLoaded", function () {
     const modal = document.getElementById("modal");
     const openModalBtn = document.getElementById("openModal");
@@ -173,7 +174,13 @@ document.addEventListener("DOMContentLoaded", function () {
             method: "POST",
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            // Coba parse JSON, jika gagal kemungkinan besar redirect ke login
+            return response.json().catch(() => {
+                window.location.href = "/login";
+                return Promise.reject("Redirecting to login...");
+            });
+        })
         .then(data => {
             if (data.status === "Complete") {
                 alert(`✅ Success: ${data.message}`);
@@ -182,7 +189,9 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         })
         .catch(error => {
-            alert(`❌ Error: ${error.message}`);
+            if (error !== "Redirecting to login...") {
+                alert(`❌ Error: ${error.message || error}`);
+            }
         });
     });
 });
