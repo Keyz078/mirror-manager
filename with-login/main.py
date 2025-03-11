@@ -5,6 +5,7 @@ import docker
 import random
 import string
 import json
+import argparse
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -16,7 +17,11 @@ login_manager.login_view = "login"
 mirror_files = {}
 client = docker.from_env()
 
-CONFIG_PATH = "config/config.json"
+parser = argparse.ArgumentParser(description="Mirror Manager")
+parser.add_argument("--config", type=str, required=True, help="Path to config file, json format")
+args = parser.parse_args()
+
+CONFIG_PATH = args.config
 
 def load_config():
     if os.path.exists(CONFIG_PATH):
@@ -34,7 +39,7 @@ def web_server():
     if "nginx-repo" in [c.name for c in client.containers.list(all=True)]:
         client.containers.get("nginx-repo").remove(force=True)
 
-    if web_server == "enabled" and host_port:
+    if web_server == True and host_port:
         bind_paths = {
             os.path.abspath(repo_path): {"bind": "/var/www/html", "mode": "ro"},
             os.path.abspath("config/nginx.conf"): {"bind": "/etc/nginx/conf.d/default.conf", "mode": "ro"}
@@ -49,7 +54,8 @@ def web_server():
             )
         except Exception as e:
             print(f"Error: {e}")
-
+    else:
+        return "Web server is not enabled in config."        
 web_server()
 
 def find_and_symlink_folders(source_root, target_root):
@@ -101,7 +107,9 @@ class User(UserMixin):
     def __init__(self, id):
         self.id = id
 
-users = {"admin": "admin"}
+user = config.get("auth", {}).get("user")
+password = config.get("auth", {}).get("password")
+users = {user: password}
 
 @login_manager.user_loader
 def load_user(user_id):

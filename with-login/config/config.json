@@ -3,6 +3,10 @@
     "repo_path": "/mirror/repos",
     "repo_config_path": "/mirror/configs",
     "repo_log_path": "/mirror/logs",
-    "web_server": "disabled",
-    "host_port": 5080
+    "web_server": true,
+    "host_port": 5080,
+    "auth": {
+        "user": "admin",
+        "password": "gladiators88"
+    }
 }
