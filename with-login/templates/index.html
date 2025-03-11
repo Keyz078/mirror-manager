@@ -75,14 +75,6 @@
                     <h2 class="text-xl font-semibold mb-4">Create New Container</h2>
                     <form action="/add" method="POST" class="p-2 sm:p-5">
                         <div class="grid gap-4 mb-4 grid-cols-1 sm:grid-cols-2">
-                            <div class="col-span-2">
-                                <label for="mirror_path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mirror Path:</label>
-                                <input type="text" name="mirror_path" id="mirror_path" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="/mirror" required>
-                                <div class="mt-3 flex items-center mb-4">
-                                    <input id="path-checkbox" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm dark:bg-gray-700 dark:border-gray-600">
-                                    <label for="path-checkbox" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Set default?</label>
-                                </div>
-                            </div>
                             <div class="col-span-2 sm:col-span-1">
                                 <label for="container_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name (Optional):</label>
                                 <input type="text" name="container_name" id="container_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Default: Random">

@@ -120,31 +120,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const openModalBtn = document.getElementById("openModal");
     const closeModalBtn = document.getElementById("closeModal");
     const form = modal.querySelector("form");
-    const mirrorPathInput = document.getElementById("mirror_path");
-    const defaultCheckbox = document.getElementById("path-checkbox");
     const osTypeSelect = document.getElementById("os_type");
     const rhelOptions = document.getElementById("rhel-options");
-
-    // Load stored value
-    if (localStorage.getItem("mirror_path")) {
-        mirrorPathInput.value = localStorage.getItem("mirror_path");
-        defaultCheckbox.checked = true;
-    }
-
-    // Handle default path checkbox
-    defaultCheckbox.addEventListener("change", function () {
-        if (this.checked) {
-            localStorage.setItem("mirror_path", mirrorPathInput.value);
-        } else {
-            localStorage.removeItem("mirror_path");
-        }
-    });
-
-    mirrorPathInput.addEventListener("input", function () {
-        if (defaultCheckbox.checked) {
-            localStorage.setItem("mirror_path", this.value);
-        }
-    });
 
     // Show/hide RHEL input fields
     osTypeSelect.addEventListener("change", function () {
