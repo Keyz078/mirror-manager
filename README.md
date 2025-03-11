@@ -9,26 +9,23 @@ Hi, this is my first python project, based on what I usually do, this tool makes
 
 New path structure should be like this:
 ```
-/repo-local/
-├── rhel
-│   └── rhel8
-├── ubuntu
-│   ├── archive
-│   ├── mongodb
-│   ├── nginx
-│   ├── postgresql
-│   ├── security
-│   └── zabbix
+/mirror/
+├── configs
+├── logs
+├── repos
+│   ├── rhel
+│   │   └── rhel8
+│   └── ubuntu
+│       ├── nginx
+│       └── zabbix
 └── ubuntu-sync
-    ├── archive.ubuntu.com
-    ├── download.postgresql.org
     ├── nginx.org
-    ├── repo.mongodb.org
-    ├── repo.zabbix.com
-    └── security.ubuntu.com
+    │   └── packages
+    └── repo.zabbix.com
+        └── zabbix
 ```
 
-> Symlinked ubuntu-sync -> ubuntu
+> Symlinked ubuntu-sync -> repos/ubuntu
 
 ### How it works?
 
