@@ -234,26 +234,38 @@ def stream_logs():
 @app.route("/delete", methods=["POST"])
 @login_required
 def delete():
-    global mirror_files, config
-    repo_log_path = config.get("repo_log_path")
-    containerID = request.form['container_id']
+    global config
+    CONFIG_DIR = config.get("repo_config_path")
+    REPO_LOG_PATH = config.get("repo_log_path")
+    
+    container_id = request.form['container_id']
     container_name = request.form['container_name']
+
     try:
-        container = client.containers.get(containerID)
+        files = os.listdir(CONFIG_DIR)
+        mirror_files = {f.replace(".conf", "").replace(".list", ""): os.path.join(CONFIG_DIR, f) for f in files}
+    except FileNotFoundError:
+        mirror_files = {}
+
+    try:
+        container = client.containers.get(container_id)
         container.remove(force=True)
-        print(f"Container {containerID} has been deleted")
-        if container_name in mirror_files:
-            file_to_delete = mirror_files.pop(container_name)
-            if os.path.exists(file_to_delete):
-                os.remove(file_to_delete)
-                print(f"File {file_to_delete} has been deleted.")
-        log_file = os.path.join(repo_log_path, f"{container_name}.log")
+        print(f"Container {container_id} has been deleted")
+
+        file_to_delete = mirror_files.get(container_name)
+        if file_to_delete and os.path.exists(file_to_delete):
+            os.remove(file_to_delete)
+            print(f"File {file_to_delete} has been deleted.")
+
+        log_file = os.path.join(REPO_LOG_PATH, f"{container_name}.log")
         if os.path.exists(log_file):
             os.remove(log_file)
             print(f"Log {log_file} has been deleted.")
+
         flash("Container was successfully deleted!", "success")
     except Exception as e:
         flash(f"{e}", "error")
+
     return redirect(url_for('index'))
 
 @app.route("/restart", methods=["POST"])
