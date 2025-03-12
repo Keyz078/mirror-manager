@@ -57,6 +57,7 @@ signal.signal(signal.SIGTERM, handle_exit)
 signal.signal(signal.SIGINT, handle_exit)
 
 def web_server():
+    mirror_path = config.get("mirror_path")
     repo_path = config.get("repo_path")
     web_server = config.get("web_server")
     host_port = config.get("host_port")
@@ -66,6 +67,7 @@ def web_server():
 
     if web_server == True and host_port:
         bind_paths = {
+            os.path.abspath(mirror_path): {"bind": mirror_path, "mode": "ro"},
             os.path.abspath(repo_path): {"bind": "/var/www/html", "mode": "ro"}
         }
         try:
