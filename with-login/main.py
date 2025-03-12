@@ -181,7 +181,7 @@ def start_mirror():
                 f.write(repo_list)
             else:
                 if not rhel_version:
-                    return {"status": "Error", "message": "RHEL Version and Repo Name are required for RHEL mirroring."}
+                    return {"status": "Error", "message": "RHEL Version is required for RHEL mirroring."}
                 f.write(repo_list)
 
         image = "keyz078/apt-mirror:latest" if os_type == "ubuntu" else "keyz078/reposync:dev"

@@ -122,13 +122,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = modal.querySelector("form");
     const osTypeSelect = document.getElementById("os_type");
     const rhelOptions = document.getElementById("rhel-options");
+    const rhelVersionInput = document.getElementById("rhel_version"); // Ambil input RHEL Version
 
-    // Show/hide RHEL input fields
+    // Show/hide RHEL input fields and set required attribute
     osTypeSelect.addEventListener("change", function () {
         if (this.value === "rhel") {
             rhelOptions.classList.remove("hidden");
+            rhelVersionInput.required = true; // Set required to true
         } else {
             rhelOptions.classList.add("hidden");
+            rhelVersionInput.required = false; // Set required to false
+            rhelVersionInput.value = ""; // Clear the input value
         }
     });
 
