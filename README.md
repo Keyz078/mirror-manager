@@ -6,6 +6,7 @@ Hi, this is my first python project, based on what I usually do, this tool makes
 
 1. Fix sync path for rhel.
 2. Auto symlink feature for ubuntu type os to simplify repo path.
+3. Container web server for serving local repository
 
 New path structure should be like this:
 ```
@@ -40,6 +41,8 @@ It creates container which automatically mirroring the repos, you can create mul
 
 ### Step
 
+#### Python method
+
 1. Install requirements
 
 ```
@@ -50,3 +53,53 @@ pip install -r requirements.txt
 ```
 python3 main.py
 ```
+
+#### Binary method
+
+Get the binary from [release](https://github.com/Keyz078/mirror-manager/releases) page
+
+```
+chmod +x mirror-manager
+```
+
+Make config file, for example:
+
+```
+{
+    "mirror_path": "/mirror",
+    "repo_path": "/mirror/repos",
+    "repo_config_path": "/mirror/configs",
+    "repo_log_path": "/mirror/logs",
+    "web_server": true,
+    "host_port": 5080,
+    "auth": {
+        "user": "admin",
+        "password": "admin"
+    }
+}
+```
+
+Start service
+
+```
+./mirror-manager --config /path/to/your/config.json
+```
+
+### Start mirroring
+
+Access the web ui http://your-address:5000
+
+#### Add new mirror
+
+Just create a new container, fill in the form, while in the `Repos` section you need to fill in the repo configuration like .list for ubuntu/debian based or .repo for fedora/rhel family.
+
+![alt text](image.png)
+
+> For Ubuntu/Debian
+
+![alt text](image-1.png)
+
+> For Fedora/rhel/centos/rocky
+
+
+When it's done, access web-server container http://your-address:host-port
