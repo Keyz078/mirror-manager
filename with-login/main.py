@@ -8,6 +8,7 @@ import json
 import argparse
 import signal
 import atexit
+import sys
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -45,7 +46,7 @@ atexit.register(cleanup)
 
 def handle_exit(signum, frame):
     cleanup()
-    exit(0)
+    sys.exit(0)
 
 signal.signal(signal.SIGTERM, handle_exit)
 signal.signal(signal.SIGINT, handle_exit)
