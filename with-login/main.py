@@ -59,13 +59,12 @@ def web_server():
 
     if web_server == True and host_port:
         bind_paths = {
-            os.path.abspath(repo_path): {"bind": "/var/www/html", "mode": "ro"},
-            os.path.abspath("config/nginx.conf"): {"bind": "/etc/nginx/conf.d/default.conf", "mode": "ro"}
+            os.path.abspath(repo_path): {"bind": "/var/www/html", "mode": "ro"}
         }
         try:
             client.containers.run(
                 name="nginx-repo",
-                image="nginx:alpine",
+                image="keyz078/mirror-manager-nginx",
                 volumes=bind_paths,
                 ports={"80/tcp": host_port},
                 detach=True
