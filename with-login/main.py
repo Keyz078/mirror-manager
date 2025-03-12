@@ -6,6 +6,8 @@ import random
 import string
 import json
 import argparse
+import signal
+import atexit
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -31,6 +33,22 @@ def load_config():
 
 config = load_config()
 
+def cleanup():
+    try:
+        container = client.containers.get("nginx-repo")
+        container.remove(force=True)
+        print("Nginx container removed successfully.")
+    except Exception as e:
+        print(f"Failed to remove Nginx container: {e}")
+
+atexit.register(cleanup)
+
+def handle_exit(signum, frame):
+    cleanup()
+    exit(0)
+
+signal.signal(signal.SIGTERM, handle_exit)
+signal.signal(signal.SIGINT, handle_exit)
 def web_server():
     repo_path = config.get("repo_path")
     web_server = config.get("web_server")
