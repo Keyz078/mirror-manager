@@ -93,11 +93,13 @@ Access the web ui http://your-address:5000
 
 Just create a new container, fill in the form, while in the `Repos` section you need to fill in the repo configuration like .list for ubuntu/debian based or .repo for fedora/rhel family.
 
-![alt text](image.png)
+![image](https://github.com/user-attachments/assets/37f70f5e-d549-46fe-94a5-51a409d90ea4)
+
 
 > For Ubuntu/Debian
 
-![alt text](image-1.png)
+![image](https://github.com/user-attachments/assets/b9aacbd7-cf37-4ce1-b4be-d1d3d95eb162)
+
 
 > For Fedora/rhel/centos/rocky
 
