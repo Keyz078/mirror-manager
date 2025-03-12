@@ -7,6 +7,6 @@
     "host_port": 5080,
     "auth": {
         "user": "admin",
-        "password": "gladiators88"
+        "password": "'admin'"
     }
 }
