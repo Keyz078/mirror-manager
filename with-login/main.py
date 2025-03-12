@@ -7,7 +7,6 @@ import string
 import json
 import argparse
 import signal
-import atexit
 import sys
 
 app = Flask(__name__)
@@ -39,17 +38,24 @@ def cleanup():
         container = client.containers.get("nginx-repo")
         container.remove(force=True)
         print("Nginx container removed successfully.")
+    except docker.errors.NotFound:
+        print("Web server is not enabled, nothing to delete.")
     except Exception as e:
         print(f"Failed to remove Nginx container: {e}")
 
-atexit.register(cleanup)
-
 def handle_exit(signum, frame):
+    print("Cleaning up before exit...")
     cleanup()
+    if signum == signal.SIGINT:
+        print("Program exited caused by user cancel (Ctrl+C)")
+    elif signum == signal.SIGTERM:
+        print("Program is stopped")
     sys.exit(0)
 
+# Set up signal handlers
 signal.signal(signal.SIGTERM, handle_exit)
 signal.signal(signal.SIGINT, handle_exit)
+
 def web_server():
     repo_path = config.get("repo_path")
     web_server = config.get("web_server")
@@ -289,4 +295,4 @@ def logout():
     return redirect(url_for("index"))
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0')
