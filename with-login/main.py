@@ -17,21 +17,45 @@ login_manager.init_app(app)
 login_manager.login_view = "login"
 
 mirror_files = {}
-client = docker.from_env()
 
 parser = argparse.ArgumentParser(description="Mirror Manager")
 parser.add_argument("--config", type=str, required=True, help="Path to config file, json format")
+parser.add_argument("--socket", type=str, help="Another container socket")
 args = parser.parse_args()
 
 CONFIG_PATH = args.config
 
 def load_config():
     if os.path.exists(CONFIG_PATH):
-        with open(CONFIG_PATH, "r") as f:
-            return json.load(f)
-    return {}
+        try:
+            with open(CONFIG_PATH, "r") as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            print("Error: Configuration file is not valid. Please ensure your JSON file is correct.")
+            sys.exit(1)
+    else:
+        print("Error: Configuration file not found.")
+        sys.exit(1)
 
 config = load_config()
+
+client = None
+
+def connect():
+    global client
+    if args.socket:
+        try:
+            socket = args.socket
+            client = docker.DockerClient(base_url=f'unix://{socket}')
+        except Exception as e:
+            print(f"Error: could not connect to socket on {socket}")
+    else:
+        try:
+            client = docker.from_env()
+        except Exception as e:
+            print("Error: Docker not installed or not accessible.")
+            sys.exit(1)
+connect()
 
 def cleanup():
     try:
