@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  mirror-manager:
+    build: .
+    container_name: mirror-manager
+    volumes:
+      - ./config:/app/config
+      - ./static:/app/static
+      - ./templates:/app/templates
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+    restart: unless-stopped
