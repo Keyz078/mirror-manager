@@ -1,4 +1,4 @@
-# mirror-manager
+# mirror-manager branch DEV (For ongoing feature and testing)
 
 Hi, this is my first python project, based on what I usually do, this tool makes it easy for us to mirror repos, currently the existing feature only does remote mirroring based on a web server with flask.
 
@@ -7,6 +7,7 @@ Hi, this is my first python project, based on what I usually do, this tool makes
 1. Fix sync path for rhel.
 2. Auto symlink feature for ubuntu type os to simplify repo path.
 3. Container web server for serving local repository
+4. Reconfigure existing config (New!)
 
 New path structure should be like this:
 ```
