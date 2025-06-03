@@ -360,13 +360,16 @@ def update_config():
     if new_config_data is None:
         return jsonify({"status": "Error", "message": "Invalid JSON data received."}), 400
 
-    if save_config(new_config_data):
-        config = new_config_data
+    # Merge config lama dengan data baru
+    updated_config = config.copy()
+    updated_config.update(new_config_data)
+
+    if save_config(updated_config):
+        config = updated_config
         # Update users dict agar password baru langsung aktif
         user = config.get("auth", {}).get("user")
         password = config.get("auth", {}).get("password")
         users = {user: password}
-        # Restart nginx-repo container sesuai config baru
         web_server()
         return jsonify({"status": "Success", "message": "Configuration updated successfully."}), 200
     else:
