@@ -13,6 +13,10 @@ function refreshTable() {
                             <tbody>`;
 
             data.forEach(row => {
+                const isMirrorManager = row.name === "mirror-manager";
+                const deleteDisabled = isMirrorManager ? "disabled class='bg-red-400 text-white px-3 py-2 rounded-lg cursor-not-allowed'" : "class='bg-red-400 text-white px-3 py-2 rounded-lg delete-btn'";
+                const stopDisabled = isMirrorManager ? "disabled class='bg-gray-400 text-white px-3 py-2 rounded-lg stop-btn cursor-not-allowed'" : "class='bg-gray-400 text-white px-3 py-2 rounded-lg stop-btn'"
+                const restartDisabled = isMirrorManager ? "disabled class='bg-yellow-500 text-white px-3 py-2 rounded-lg restart-btn cursor-not-allowed'" : "class='bg-yellow-500 text-white px-3 py-2 rounded-lg restart-btn'"
                 table += `<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
                             <td class="px-6 py-4 break-words">${row.name}</td>
                             <td class="px-6 py-4 break-words">${row.status}</td>
@@ -20,17 +24,17 @@ function refreshTable() {
                                 <div class="flex justify-center space-x-2">
                                     <form action="/stop" method="POST">
                                         <input type="hidden" name="container_id" value="${row.id}">
-                                        <button type="submit" class="bg-gray-400 text-white px-3 py-2 rounded-lg stop-btn">Stop</button>
+                                        <button type="submit" ${stopDisabled}>Stop</button>
                                     </form>
                                     <form action="/restart" method="POST">
                                         <input type="hidden" name="container_id" value="${row.id}">
-                                        <button type="submit" class="bg-yellow-500 text-white px-3 py-2 rounded-lg restart-btn">Restart</button>
+                                        <button type="submit" ${restartDisabled}>Restart</button>
                                     </form>
                                     <form action="/delete" method="POST">
                                         <input type="hidden" name="container_name" value="${row.name}">
                                         <input type="hidden" name="container_id" value="${row.id}">
                                         <input type="hidden" name="os_type" value="${os_type}">
-                                        <button type="submit" class="bg-red-400 text-white px-3 py-2 rounded-lg delete-btn">Delete</button>
+                                        <button type="submit" ${deleteDisabled}>Delete</button>
                                     </form>
                                     <form action="/stream_logs" method="POST" target="_blank">
                                         <input type="hidden" name="container_id" value="${row.id}">
@@ -44,6 +48,7 @@ function refreshTable() {
             table += `</tbody></table>`;
             document.getElementById('table-container').innerHTML = table;
 
+            // Hanya pasang event listener ke tombol Delete yang tidak disable
             document.querySelectorAll('.delete-btn').forEach(button => {
                 button.addEventListener('click', function(event) {
                     if (!confirm('Are you sure you want to delete this container?')) {
@@ -54,6 +59,7 @@ function refreshTable() {
         })
         .catch(error => console.error('Error fetching table data:', error));
 }
+
 
 
 // Auto-refresh every 15 second

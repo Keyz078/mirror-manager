@@ -3,10 +3,6 @@ window.initConfigPage = function() {
     fetch('/api/config')
         .then(res => res.json())
         .then(cfg => {
-            document.getElementById('mirror_path').value = cfg.mirror_path || '';
-            document.getElementById('repo_path').value = cfg.repo_path || '';
-            document.getElementById('repo_config_path').value = cfg.repo_config_path || '';
-            document.getElementById('repo_log_path').value = cfg.repo_log_path || '';
             document.getElementById('web_server').value = cfg.web_server ? "true" : "false";
             document.getElementById('host_port').value = cfg.host_port || '';
             document.getElementById('auth_user').value = (cfg.auth && cfg.auth.user) || '';
@@ -16,10 +12,6 @@ window.initConfigPage = function() {
     document.getElementById('configForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const data = {
-            mirror_path: document.getElementById('mirror_path').value,
-            repo_path: document.getElementById('repo_path').value,
-            repo_config_path: document.getElementById('repo_config_path').value,
-            repo_log_path: document.getElementById('repo_log_path').value,
             web_server: document.getElementById('web_server').value === "true",
             host_port: parseInt(document.getElementById('host_port').value, 10),
             auth: {
