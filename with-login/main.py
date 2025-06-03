@@ -332,5 +332,45 @@ def logout():
     flash("Successfully logged out!.", "logout")
     return redirect(url_for("index"))
 
+def save_config(new_config_data):
+    try:
+        with open(CONFIG_PATH, "w") as f:
+            json.dump(new_config_data, f, indent=4)
+        return True
+    except Exception as e:
+        print(f"Error writing configuration file: {e}")
+        return False
+
+@app.route("/config")
+@login_required
+def config_page():
+    return render_template("config.html")
+
+@app.route("/api/config", methods=["GET"])
+@login_required
+def get_config():
+    global config
+    return jsonify(config)
+
+@app.route("/api/config", methods=["POST"])
+@login_required
+def update_config():
+    global config, users
+    new_config_data = request.get_json()
+    if new_config_data is None:
+        return jsonify({"status": "Error", "message": "Invalid JSON data received."}), 400
+
+    if save_config(new_config_data):
+        config = new_config_data
+        # Update users dict agar password baru langsung aktif
+        user = config.get("auth", {}).get("user")
+        password = config.get("auth", {}).get("password")
+        users = {user: password}
+        # Restart nginx-repo container sesuai config baru
+        web_server()
+        return jsonify({"status": "Success", "message": "Configuration updated successfully."}), 200
+    else:
+        return jsonify({"status": "Error", "message": "Failed to save configuration file."}), 500
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
