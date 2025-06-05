@@ -9,7 +9,7 @@ import argparse
 import signal
 import sys
 
-VERSION = os.environ.get("MIRROR_MANAGER_VERSION", "v0.0.0")
+VERSION = "dev"
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
