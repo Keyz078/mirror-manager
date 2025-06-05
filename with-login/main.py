@@ -9,6 +9,8 @@ import argparse
 import signal
 import sys
 
+VERSION = os.environ.get("MIRROR_MANAGER_VERSION", "v0.0.0")
+
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
@@ -19,9 +21,17 @@ login_manager.login_view = "login"
 mirror_files = {}
 
 parser = argparse.ArgumentParser(description="Mirror Manager")
-parser.add_argument("--config", type=str, required=True, help="Path to config file, json format")
+parser.add_argument("--config", type=str, help="Path to config file, json format")
 parser.add_argument("--socket", type=str, help="Another container socket")
+parser.add_argument("-v", "--version", action="store_true", help="Show version and exit")
 args = parser.parse_args()
+
+if args.version:
+    print(f"mirror-manager: {VERSION}")
+    sys.exit(0)
+
+if not args.config:
+    parser.error("--config is required")
 
 CONFIG_PATH = args.config
 
