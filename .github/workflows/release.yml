@@ -41,7 +41,7 @@ jobs:
                 --add-data 'static:static' \
                 main.py &&
               mv dist/main dist/mirror-manager-${{ matrix.arch }} &&
-              cp ../../README.md dist/ &&
+              cp ../README.md dist/ &&
               cd dist && zip mirror-manager-${{ matrix.arch }}.zip mirror-manager-${{ matrix.arch }} README.md
             "
 
