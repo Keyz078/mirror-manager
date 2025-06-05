@@ -8,6 +8,7 @@ Hi, this is my first python project, based on what I usually do, this tool makes
 2. Auto symlink feature for ubuntu type os to simplify repo path.
 3. Container web server for serving local repository
 4. Reconfigure existing config (New!)
+5. Run on container mode is now available (New!)
 
 New path structure should be like this:
 ```
@@ -52,7 +53,7 @@ pip install -r requirements.txt
 
 2. Run the flask
 ```
-python3 main.py
+python3 main.py --config /path/to/your/config.json
 ```
 
 #### Binary method
@@ -85,6 +86,17 @@ Start service
 ```
 ./mirror-manager --config /path/to/your/config.json
 ```
+
+#### Container method docker/podman
+
+```
+docker run -d -p 5000:5000 -v /var/run/docker.sock:/var/run/docker.sock \
+-v /path/for/mirror:/path/for/mirror \
+-v /path/to/config.json:/app/config/config.json \
+keyz078/mirror-manager:latest
+```
+
+> For podman, change the docker into podman with the socket also
 
 ### Start mirroring
 
