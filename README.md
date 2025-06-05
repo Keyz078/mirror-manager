@@ -1,4 +1,4 @@
-# mirror-manager branch DEV (For ongoing feature and testing)
+# mirror-manager
 
 Hi, this is my first python project, based on what I usually do, this tool makes it easy for us to mirror repos, currently the existing feature only does remote mirroring based on a web server with flask.
 
@@ -90,7 +90,7 @@ Start service
 #### Container method docker/podman
 
 ```
-docker run -d -p 5000:5000 -v /var/run/docker.sock:/var/run/docker.sock \
+docker run --name mirror-manager -d -p 5000:5000 -v /var/run/docker.sock:/var/run/docker.sock \
 -v /path/for/mirror:/path/for/mirror \
 -v /path/to/config.json:/app/config/config.json \
 keyz078/mirror-manager:latest
