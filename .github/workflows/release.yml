@@ -30,6 +30,7 @@ jobs:
             --platform linux/${{ matrix.arch }} \
             -v ${{ github.workspace }}:/app \
             -w /app/with-login \
+            -e MIRROR_MANAGER_VERSION=$TAG_NAME \
             ubuntu:20.04 bash -c "
               apt update &&
               DEBIAN_FRONTEND=noninteractive apt install -y python3 python3-pip python3-venv curl build-essential zip &&
