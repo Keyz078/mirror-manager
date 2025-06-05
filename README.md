@@ -96,7 +96,7 @@ docker run --name mirror-manager -d -p 5000:5000 -v /var/run/docker.sock:/var/ru
 keyz078/mirror-manager:latest
 ```
 
-> For podman, change the docker into podman with the socket also
+> you can use both docker and podman, just change the command and socket.
 
 ### Start mirroring
 
