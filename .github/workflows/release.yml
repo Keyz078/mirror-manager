@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build Binary for ${{ matrix.arch }}
+    name: Build and Release for ${{ matrix.arch }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -19,25 +19,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up QEMU for cross-architecture
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
           platforms: all
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build binary for ${{ matrix.arch }}
         run: |
+          VERSION=${GITHUB_REF_NAME}
           docker run --rm \
             --platform linux/${{ matrix.arch }} \
             -v ${{ github.workspace }}:/app \
             -w /app/with-login \
-            -e VERSION=${{ github.ref_name }} \
-            ${{ steps.vars.outputs.ARCH_IMAGE }} bash -c "
+            ubuntu:20.04 bash -c "
               apt update &&
               DEBIAN_FRONTEND=noninteractive apt install -y python3 python3-pip python3-venv curl build-essential zip &&
               python3 -m pip install --upgrade pip &&
               pip3 install pyinstaller &&
               pip3 install -r requirements.txt &&
-              sed -i 's/VERSION = \"dev\"/VERSION = \"'$VERSION'\"/g' main.py &&
+              sed -i 's/VERSION = \"dev\"/VERSION = \"${VERSION}\"/g' main.py &&
               pyinstaller --onefile \
                 --add-data 'templates:templates' \
                 --add-data 'static:static' \
