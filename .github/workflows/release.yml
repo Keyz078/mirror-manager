@@ -8,7 +8,7 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-    container: ubuntu:bionic
+    container: ubuntu:focal
 
     defaults:
       run:
