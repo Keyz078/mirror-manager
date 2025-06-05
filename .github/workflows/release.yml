@@ -1,83 +1,38 @@
-name: Compile Flask App from 'with-login' and Release
+name: Build and Release Binary
 
 on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 jobs:
-  build-and-release:
+  build:
+    name: Build Binary with Ubuntu 20.04 Base
     runs-on: ubuntu-latest
-    container: ubuntu:focal
-
-    defaults:
-      run:
-        working-directory: ./with-login
-
-    permissions:
-      contents: write
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.8'
+      - name: Build binary in Ubuntu 20.04 container
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/app -w /app/with-login ubuntu:20.04 bash -c "
+            apt update &&
+            DEBIAN_FRONTEND=noninteractive apt install -y python3 python3-pip python3-venv curl build-essential &&
+            python3 -m pip install --upgrade pip &&
+            pip3 install pyinstaller &&
+            pip3 install -r requirements.txt &&
+            pyinstaller --onefile \
+              --add-data 'templates:templates' \
+              --add-data 'static:static' \
+              main.py &&
+            mv dist/main dist/py-mirror-manager
+          "
 
-    - name: Install system dependencies (e.g., for Tkinter if PyInstaller needs it)
-      run: |
-        apt-get update
-        apt-get install -y python3-tk
-        # Tambahkan dependensi sistem lain jika diperlukan
-      working-directory: .
-
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flask pyinstaller
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-    - name: Compile application with PyInstaller
-      id: compile 
-      run: |
-        APP_NAME="mirror-manager"
-        echo "Compiling ${APP_NAME} from main.py..."
-        pyinstaller --name ${APP_NAME} \
-                    --onefile \
-                    --console \
-                    --add-data "static:static" \
-                    --add-data "templates:templates" \
-                    main.py
-
-        # Menentukan path output relatif terhadap root repositori untuk unggah artefak
-        # PyInstaller membuat output di 'dist/' dalam working-directory saat ini ('with-login')
-        echo "app_path=with-login/dist/${APP_NAME}" >> $GITHUB_OUTPUT
-        echo "app_filename=${APP_NAME}" >> $GITHUB_OUTPUT
-        echo "Compiled app path: with-login/dist/${APP_NAME}"
-
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Token ini disediakan oleh GitHub Actions
-      with:
-        tag_name: ${{ github.ref_name }} # Menggunakan nama tag yang memicu alur kerja
-        release_name: Release ${{ github.ref_name }}
-        body: |
-          Rilis otomatis untuk versi ${{ github.ref_name }}.
-          Aplikasi Flask dikompilasi dari direktori 'with-login'.
-          File yang dieksekusi: ${{ steps.compile.outputs.app_filename }}
-        draft: false
-        prerelease: false # Setel ke true jika ini adalah pre-release
-
-    - name: Upload Release Asset (Compiled App)
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # URL dari langkah create_release
-        asset_path: ${{ steps.compile.outputs.app_path }} # Path ke file yang dikompilasi
-        asset_name: ${{ steps.compile.outputs.app_filename }} # Nama file di rilis (misal: my_flask_app)
-        asset_content_type: application/octet-stream # Tipe konten umum untuk file biner
+      - name: Upload release binary
+        uses: softprops/action-gh-release@v2
+        with:
+          files: with-login/dist/py-mirror-manager
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
