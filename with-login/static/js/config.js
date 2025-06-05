@@ -122,9 +122,9 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         document.querySelectorAll('.tab-btn').forEach(b => {
             b.classList.remove('border-blue-600', 'text-blue-600', 'dark:border-blue-400', 'dark:text-blue-400');
-            b.classList.add('border-transparent', 'text-gray-700', 'dark:text-white');
+            b.classList.add('dark:border-gray-700', 'text-gray-700', 'dark:text-white');
         });
-        this.classList.remove('border-transparent', 'text-gray-700', 'dark:text-white');
+        this.classList.remove('dark:border-gray-700', 'text-gray-700', 'dark:text-white');
         this.classList.add('border-blue-600', 'text-blue-600', 'dark:border-blue-400', 'dark:text-blue-400');
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
         document.getElementById(this.dataset.tab + 'Form').classList.remove('hidden');
@@ -133,4 +133,4 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 // Default tab highlight
 const defaultTab = document.getElementById('tab-webserver');
 defaultTab.classList.add('border-blue-600', 'text-blue-600', 'dark:border-blue-400', 'dark:text-blue-400');
-defaultTab.classList.remove('border-transparent', 'text-gray-700', 'dark:text-white');
+defaultTab.classList.remove('dark:border-gray-700', 'text-gray-700', 'dark:text-white');
