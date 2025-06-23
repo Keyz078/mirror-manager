@@ -3,38 +3,9 @@ window.initConfigPage = function() {
     fetch('/api/config')
         .then(res => res.json())
         .then(cfg => {
-            // Webserver form
-            document.getElementById('web_server').value = cfg.web_server ? "true" : "false";
-            document.getElementById('host_port').value = cfg.host_port || '';
             // Auth form
             document.getElementById('auth_user').value = (cfg.auth && cfg.auth.user) || '';
         });
-
-    // Webserver form submit
-    document.getElementById('webserverForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        if (!confirm("Are you sure you want to save this Web Server configuration?")) return;
-        const data = {
-            web_server: document.getElementById('web_server').value === "true",
-            host_port: parseInt(document.getElementById('host_port').value, 10)
-        };
-        fetch('/api/config', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        })
-        .then(res => res.json())
-        .then(resp => {
-            if (resp.status === "Success") {
-                alert("Web Server configuration saved!");
-            } else {
-                alert(resp.message || "Failed to save Web Server configuration.");
-            }
-        })
-        .catch(() => {
-            alert("Failed to save Web Server configuration.");
-        });
-    });
 
     // Auth form submit
     document.getElementById('authForm').addEventListener('submit', function(e) {
@@ -95,6 +66,34 @@ window.initConfigPage = function() {
     });
 };
 
+// Tab logic: show form sesuai tab aktif, default langsung tampilkan form tab aktif
+document.addEventListener('DOMContentLoaded', function () {
+    // Highlight tab default (tab-auth)
+    const defaultTab = document.getElementById('tab-auth');
+    defaultTab.classList.add('border-blue-600', 'text-blue-600', 'dark:border-blue-400', 'dark:text-blue-400');
+    defaultTab.classList.remove('dark:border-gray-700', 'text-gray-700', 'dark:text-white');
+
+    // Tampilkan form sesuai tab default
+    document.querySelectorAll('.tab-content').forEach(f => f.classList.add('hidden'));
+    document.getElementById(defaultTab.dataset.tab + 'Form').classList.remove('hidden');
+
+    // Tab click event
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Highlight tab
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('border-blue-600', 'text-blue-600', 'dark:border-blue-400', 'dark:text-blue-400');
+                b.classList.add('dark:border-gray-700', 'text-gray-700', 'dark:text-white');
+            });
+            this.classList.remove('dark:border-gray-700', 'text-gray-700', 'dark:text-white');
+            this.classList.add('border-blue-600', 'text-blue-600', 'dark:border-blue-400', 'dark:text-blue-400');
+            // Tampilkan form sesuai tab
+            document.querySelectorAll('.tab-content').forEach(f => f.classList.add('hidden'));
+            document.getElementById(this.dataset.tab + 'Form').classList.remove('hidden');
+        });
+    });
+});
+
 document.addEventListener('DOMContentLoaded', function () {
     const passwordInput = document.getElementById('auth_password');
     const togglePassword = document.getElementById('togglePassword');
@@ -117,20 +116,3 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
-
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.tab-btn').forEach(b => {
-            b.classList.remove('border-blue-600', 'text-blue-600', 'dark:border-blue-400', 'dark:text-blue-400');
-            b.classList.add('dark:border-gray-700', 'text-gray-700', 'dark:text-white');
-        });
-        this.classList.remove('dark:border-gray-700', 'text-gray-700', 'dark:text-white');
-        this.classList.add('border-blue-600', 'text-blue-600', 'dark:border-blue-400', 'dark:text-blue-400');
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-        document.getElementById(this.dataset.tab + 'Form').classList.remove('hidden');
-    });
-});
-// Default tab highlight
-const defaultTab = document.getElementById('tab-webserver');
-defaultTab.classList.add('border-blue-600', 'text-blue-600', 'dark:border-blue-400', 'dark:text-blue-400');
-defaultTab.classList.remove('dark:border-gray-700', 'text-gray-700', 'dark:text-white');

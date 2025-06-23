@@ -42,16 +42,6 @@
         <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
             <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="configTabs" role="tablist">
                 <li class="me-2">
-                    <button class="tab-btn p-4 dark:border-gray-700 border-b-2  rounded-t-lg
-                        text-gray-700 dark:text-white
-                        hover:text-blue-700 hover:border-blue-600 dark:hover:text-blue-400 dark:hover:border-blue-400
-                        focus:outline-none
-                        dark:bg-gray-900"
-                        id="tab-webserver" data-tab="webserver" type="button">
-                        Web Server
-                    </button>
-                </li>
-                <li class="me-2">
                     <button class="tab-btn p-4 border-b-2 dark:border-gray-700 rounded-t-lg
                         text-gray-700 dark:text-white
                         hover:text-blue-700 hover:border-blue-600 dark:hover:text-blue-400 dark:hover:border-blue-400
@@ -63,21 +53,6 @@
                 </li>
             </ul>
         </div>
-        <!-- Web Server Form -->
-        <form id="webserverForm" class="tab-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-            <div class="mb-4">
-                <label class="block text-gray-700 dark:text-gray-200 mb-2" for="web_server">Web Server Enabled</label>
-                <select id="web_server" name="web_server" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                    <option value="true">True</option>
-                    <option value="false">False</option>
-                </select>
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 dark:text-gray-200 mb-2" for="host_port">Host Port</label>
-                <input type="number" id="host_port" name="host_port" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
-            </div>
-            <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save</button>
-        </form>
         <!-- Auth Form -->
         <form id="authForm" class="tab-content bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hidden">
             <div class="mb-4">

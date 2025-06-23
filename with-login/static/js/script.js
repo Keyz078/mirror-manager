@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = modal.querySelector("form");
     const osTypeSelect = document.getElementById("os_type");
     const rhelOptions = document.getElementById("rhel-options");
-    const rhelVersionInput = document.getElementById("rhel_version"); // Get input RHEL Version
+    const rhelVersionInput = document.getElementById("parent_dir"); // Get input RHEL Version
 
     // Show/hide RHEL input fields and set required attribute
     osTypeSelect.addEventListener("change", function () {

@@ -90,66 +90,6 @@ def handle_exit(signum, frame):
 signal.signal(signal.SIGTERM, handle_exit)
 signal.signal(signal.SIGINT, handle_exit)
 
-def web_server():
-    mirror_path = config.get("mirror_path")
-    repo_path = config.get("repo_path")
-    web_server = config.get("web_server")
-    host_port = config.get("host_port")
-
-    if "nginx-repo" in [c.name for c in client.containers.list(all=True)]:
-        client.containers.get("nginx-repo").remove(force=True)
-
-    if web_server == True and host_port:
-        bind_paths = {
-            os.path.abspath(mirror_path): {"bind": mirror_path, "mode": "ro"},
-            os.path.abspath(repo_path): {"bind": "/var/www/html", "mode": "ro"}
-        }
-        try:
-            client.containers.run(
-                name="nginx-repo",
-                image="keyz078/mirror-manager-nginx",
-                volumes=bind_paths,
-                ports={"80/tcp": host_port},
-                detach=True
-            )
-        except Exception as e:
-            print(f"Error: {e}")
-    else:
-        return "Web server is not enabled in config."        
-web_server()
-
-def find_and_symlink_folders(source_root, target_root):
-    base_repos = {"archive.ubuntu.com": "archive", "security.ubuntu.com": "security"}
-    
-    for root, dirs, _ in os.walk(source_root):
-        for folder in ('dists', 'pool'):
-            if folder in dirs:
-                old_path = os.path.join(root, folder)
-                relative_path = os.path.relpath(root, source_root).split(os.sep)
-                domain_name = relative_path[0]
-                
-                if domain_name in base_repos:
-                    domain_name = base_repos[domain_name]  
-                else:
-                    domain_parts = domain_name.split('.')
-                    if len(domain_parts) > 2:
-                        domain_name = domain_parts[-2]  
-                    else:
-                        domain_name = domain_parts[0] 
-                
-                sub_path = relative_path[1:-1] if len(relative_path) > 2 else []
-                if sub_path and sub_path[0].lower() == domain_name.lower():
-                    sub_path = sub_path[1:]
-                
-                new_path = os.path.join(target_root, domain_name, *sub_path, folder)
-                os.makedirs(os.path.dirname(new_path), exist_ok=True)
-                
-                if not os.path.exists(new_path):
-                    os.symlink(old_path, new_path)
-                    print(f"Symlinked {old_path} -> {new_path}")
-                else:
-                    print(f"Symlink already exists: {new_path}")
-
 def get_container():
     return client.containers.list(all=True, filters={"name": "mirror"})
 
@@ -192,18 +132,17 @@ def start_mirror():
     global mirror_files, config
     
     mirror_path = config.get("mirror_path")
-    repo_path = config.get("repo_path")
     repo_config_path = config.get("repo_config_path")
     repo_log_path = config.get("repo_log_path")
     container_name = request.form['container_name'] or ''.join(random.choices(string.ascii_letters + string.digits, k=5))
     os_type = request.form['os_type']
+    parent_dir = request.form['parent_dir']
 
     if os_type not in ["ubuntu", "rhel"]:
         return {"status": "Error", "message": "Wrong OS Type!"}
 
-    new_mirror_path = os.path.join(mirror_path, "ubuntu-sync" if os_type == "ubuntu" else os.path.join(repo_path, "rhel"))
+    new_mirror_path = os.path.join(mirror_path, "ubuntu-additional/master-sync/mirror" if os_type == "ubuntu" else os.path.join(mirror_path, "additional"))
     repo_list = request.form['repo_list']
-    rhel_version = request.form.get("rhel_version", "").strip()
 
     try:
         os.makedirs(repo_config_path, exist_ok=True)
@@ -213,14 +152,9 @@ def start_mirror():
         mirror_file = os.path.join(repo_config_path, f'mirror-{os_type}-{container_name}.{file_ext}')
 
         with open(mirror_file, "w") as f:
-            if os_type == "ubuntu":
-                f.write(repo_list)
-            else:
-                if not rhel_version:
-                    return {"status": "Error", "message": "RHEL Version is required for RHEL mirroring."}
-                f.write(repo_list)
+            f.write(repo_list)
 
-        image = "keyz078/apt-mirror:latest" if os_type == "ubuntu" else "keyz078/reposync:dev"
+        image = "keyz078/apt-mirror:latest" if os_type == "ubuntu" else "keyz078/reposync:btech"
         bind_paths = {
             os.path.abspath(mirror_file): {"bind": "/etc/apt/mirror.list" if os_type == "ubuntu" else "/opt/scripts/config.conf", "mode": "ro"},
             os.path.abspath(new_mirror_path): {"bind": "/var/spool/apt-mirror/mirror" if os_type == "ubuntu" else "/mirror", "mode": "rw"}
@@ -232,7 +166,8 @@ def start_mirror():
         if container_name in [c.name for c in client.containers.list(all=True)]:
             client.containers.get(container_name).remove(force=True)
 
-        env_vars = {"VERSION": rhel_version} if os_type == "rhel" else {}
+        env_vars = {"PARENT_DIR": parent_dir} if os_type == "rhel" else {}
+
         container = client.containers.run(name=container_name, image=image, volumes=bind_paths, environment=env_vars, detach=True)
 
         os.makedirs(repo_log_path, exist_ok=True)
@@ -241,9 +176,6 @@ def start_mirror():
         with open(log_file_path, "w") as log:
             for line in container.logs(stream=True):
                 log.write(line.decode("utf-8"))
-
-        if os_type == "ubuntu":
-            find_and_symlink_folders(new_mirror_path, os.path.join(repo_path, "ubuntu"))
 
         return {"status": "Complete", "message": f"The {container_name} mirroring process has been completed."}
 
@@ -380,10 +312,9 @@ def update_config():
         user = config.get("auth", {}).get("user")
         password = config.get("auth", {}).get("password")
         users = {user: password}
-        web_server()
         return jsonify({"status": "Success", "message": "Configuration updated successfully."}), 200
     else:
         return jsonify({"status": "Error", "message": "Failed to save configuration file."}), 500
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', port=5000, debug=True)
